@@ -12,6 +12,7 @@
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
 #define GL_SILENCE_DEPRECATION
+#include <string>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
 #endif
@@ -71,8 +72,14 @@ int main(int, char**)
 #endif
 
     // Create window with graphics context
-    float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor()); // Valid on GLFW 3.3+ only
-    GLFWwindow* window = glfwCreateWindow((int)(1280 * main_scale), (int)(800 * main_scale), "Dear ImGui GLFW+OpenGL3 example", nullptr, nullptr);
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+    glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+    glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+    glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+    glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
+    GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, "AeroSLR", nullptr, nullptr);
     if (window == nullptr)
         return 1;
     glfwMakeContextCurrent(window);
@@ -90,6 +97,9 @@ int main(int, char**)
     //ImGui::StyleColorsLight();
 
     // Setup scaling
+    float main_scale = 1.0f;
+    if (monitor) // It's possible we don't have a monitor (e.g. when running headless)
+        main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(monitor);
     ImGuiStyle& style = ImGui::GetStyle();
     style.ScaleAllSizes(main_scale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
     style.FontScaleDpi = main_scale;        // Set initial font scale. (using io.ConfigDpiScaleFonts=true makes this unnecessary. We leave both here for documentation purpose)
@@ -118,14 +128,17 @@ int main(int, char**)
     ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\Arial.ttf");
     //IM_ASSERT(font != nullptr);
 
-    // Our state
-    bool show_demo_window = true;
-    bool show_another_window = false;
+    // STATES --------------------------------------------
     bool show_about_window = false;
+
+    bool show_scene_hierarchy_window = true;
+    bool show_console_window = true;
+    bool show_inspector_window = true; 
+    bool show_properties_window = true;
+
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    // STATES --------------------------------------------
-    bool test = false;
+    std::string Version_number = "0.1.0-alpha";
 
     // Main loop
 #ifdef __EMSCRIPTEN__
@@ -188,31 +201,83 @@ int main(int, char**)
             ImGui::EndMainMenuBar();
         }
 
+        // ABOUT WINDOW
+
         if (show_about_window)
         {
-            ImGui::SetNextWindowSize(ImVec2(500.0f, 125.0f));
+            ImGui::SetNextWindowSize(ImVec2(500.0f, 250.0f));
 
             ImGui::Begin("About AeroSLR", &show_about_window);
-            ImGui::Text("AeroSLR Pre-Alpha Build 0");
+            ImGui::Text("AeroSLR v%s", Version_number.c_str());
             ImGui::Separator();
             ImGui::Text("(c) 2025 Oscar Forbes");
             ImGui::Text("AeroSLR (Slim, Lightweight Renderer) by Oscar Forbes");
+
+            ImGui::SeparatorText("Technologies");
+            ImGui::Text("Written in - C++");
+            ImGui::Text("UI Framework - Dear ImGui");
+            ImGui::Text("Graphics API - OpenGL");
             ImGui::End();
         }
 
+        // SCENE HIERARCHY WINDOW
 
-        ImGui::SetNextWindowPos(ImVec2(0, 30), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(200, ImGui::GetIO().DisplaySize.y - 20), ImGuiCond_Always); 
+        if (show_scene_hierarchy_window)
+        {
+            ImGui::SetNextWindowPos(ImVec2(0, 30), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(500, ImGui::GetIO().DisplaySize.y - 528), ImGuiCond_Always); 
 
-        ImGui::Begin("Scene Hierarchy", nullptr,
-                    ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse); // Start a window
+            ImGui::Begin("Scene Hierarchy", nullptr,
+                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse); 
+            
 
-        
+            ImGui::Text("This panel is not functional...");  
+            ImGui::End();   
+        } 
 
-        ImGui::Text("Hello, world!");    // Add some text inside
-        ImGui::End();                    // Close the window
+        // CONSOLE
 
+        if (show_console_window)
+        {
+            ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - 500), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x - 500, 500), ImGuiCond_Always);
 
+            ImGui::Begin("Console", nullptr, 
+                ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+
+            ImGui::Text("This panel is not functional...");
+            ImGui::End();
+        }
+
+        // INSPECTOR WINDOW
+
+        if (show_inspector_window)
+        {
+            ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 500, 30), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(500, 700), ImGuiCond_Always); 
+
+            ImGui::Begin("Inspector", nullptr,
+                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse); 
+            
+
+            ImGui::Text("This panel is not functional...");  
+            ImGui::End();   
+        } 
+
+        // PROPERTIES WINDOW
+
+        if (show_properties_window)
+        {
+            ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 500, 729), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(500, ImGui::GetIO().DisplaySize.y - 528), ImGuiCond_Always);
+
+            ImGui::Begin("Properties", nullptr,
+                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse); 
+            
+
+            ImGui::Text("This panel is not functional...");  
+            ImGui::End();   
+        } 
 
         // Rendering
        ImGui::Render();

@@ -2,10 +2,10 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "MinSizeRel/hello_window.exe"
+			"path" : "Release/hello_window.exe"
 		},
 		{
-			"path" : "MinSizeRel/hello_window.pdb"
+			"path" : "Release/hello_window.pdb"
 		}
 	],
 	"backtrace" : 1,
@@ -41,7 +41,7 @@
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 26,
+				"line" : 27,
 				"parent" : 0
 			},
 			{
@@ -58,22 +58,22 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O1 /Ob1 /DNDEBUG"
+					"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG"
 				}
 			],
 			"includes" : 
 			[
 				{
 					"backtrace" : 4,
-					"path" : "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/dependencies/ImGUI"
+					"path" : "C:/Users/oscar/OneDrive/Documents/AeroSLR/dependencies/ImGUI"
 				},
 				{
 					"backtrace" : 4,
-					"path" : "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/dependencies/ImGUI/backends"
+					"path" : "C:/Users/oscar/OneDrive/Documents/AeroSLR/dependencies/ImGUI/backends"
 				},
 				{
 					"backtrace" : 4,
-					"path" : "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/dependencies/ImGUI/examples/libs/glfw/include"
+					"path" : "C:/Users/oscar/OneDrive/Documents/AeroSLR/dependencies/ImGUI/examples/libs/glfw/include"
 				}
 			],
 			"language" : "CXX",
@@ -102,11 +102,11 @@
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O1 /Ob1 /DNDEBUG",
+				"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG",
 				"role" : "flags"
 			},
 			{
-				"fragment" : "/machine:x64 /INCREMENTAL:NO",
+				"fragment" : "/machine:x64 /SUBSYSTEM:CONSOLE /INCREMENTAL:NO",
 				"role" : "flags"
 			},
 			{
@@ -120,7 +120,7 @@
 			},
 			{
 				"backtrace" : 3,
-				"fragment" : "C:\\Users\\oscar\\OneDrive\\Documents\\3DRendererOpenGL\\dependencies\\ImGUI\\examples\\libs\\glfw\\lib-vc2010-64\\glfw3.lib",
+				"fragment" : "C:\\Users\\oscar\\OneDrive\\Documents\\AeroSLR\\dependencies\\ImGUI\\examples\\libs\\glfw\\lib-vc2010-64\\glfw3.lib",
 				"role" : "libraries"
 			},
 			{

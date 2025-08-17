@@ -23,6 +23,7 @@ target_link_libraries(hello_window PRIVATE OpenGL::GL)
 
 # For Windows
 if(WIN32)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:CONSOLE")
     target_link_libraries(hello_window PRIVATE 
         "${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ImGUI/examples/libs/glfw/lib-vc2010-64/glfw3.lib"
         gdi32 shell32

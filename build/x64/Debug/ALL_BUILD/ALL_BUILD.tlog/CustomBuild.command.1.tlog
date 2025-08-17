@@ -1,6 +1,6 @@
-^C:\USERS\OSCAR\ONEDRIVE\DOCUMENTS\3DRENDEREROPENGL\CMAKELISTS.TXT
+^C:\USERS\OSCAR\ONEDRIVE\DOCUMENTS\AEROSLR\CMAKELISTS.TXT
 setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/oscar/OneDrive/Documents/3DRendererOpenGL -BC:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build --check-stamp-file C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/CMakeFiles/generate.stamp
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/oscar/OneDrive/Documents/AeroSLR -BC:/Users/oscar/OneDrive/Documents/AeroSLR/build --check-stamp-file C:/Users/oscar/OneDrive/Documents/AeroSLR/build/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone

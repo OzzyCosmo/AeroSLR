@@ -110,9 +110,9 @@ events:
       The output was:
       0
       MSBuild version 17.6.3+07e294721 for .NET Framework
-      Build started 17/08/2025 11:17:50 AM.
+      Build started 17/08/2025 04:56:11 PM.
       
-      Project "C:\\Users\\oscar\\OneDrive\\Documents\\3DRendererOpenGL\\build\\CMakeFiles\\4.1.0-rc3\\CompilerIdC\\CompilerIdC.vcxproj" on node 1 (default targets).
+      Project "C:\\Users\\oscar\\OneDrive\\Documents\\AeroSLR\\build\\CMakeFiles\\4.1.0-rc3\\CompilerIdC\\CompilerIdC.vcxproj" on node 1 (default targets).
       PrepareForBuild:
         Creating directory "Debug\\".
         Creating directory "Debug\\CompilerIdC.tlog\\".
@@ -123,7 +123,7 @@ events:
         CMakeCCompilerId.c
       Link:
         C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdC.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdC.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdC.lib" /MACHINE:X64 Debug\\CMakeCCompilerId.obj
-        CompilerIdC.vcxproj -> C:\\Users\\oscar\\OneDrive\\Documents\\3DRendererOpenGL\\build\\CMakeFiles\\4.1.0-rc3\\CompilerIdC\\CompilerIdC.exe
+        CompilerIdC.vcxproj -> C:\\Users\\oscar\\OneDrive\\Documents\\AeroSLR\\build\\CMakeFiles\\4.1.0-rc3\\CompilerIdC\\CompilerIdC.exe
       PostBuildEvent:
         for %%i in (cl.exe) do @echo CMAKE_C_COMPILER=%%~$PATH:i
         :VCEnd
@@ -131,13 +131,13 @@ events:
       FinalizeBuildStatus:
         Deleting file "Debug\\CompilerIdC.tlog\\unsuccessfulbuild".
         Touching "Debug\\CompilerIdC.tlog\\CompilerIdC.lastbuildstate".
-      Done Building Project "C:\\Users\\oscar\\OneDrive\\Documents\\3DRendererOpenGL\\build\\CMakeFiles\\4.1.0-rc3\\CompilerIdC\\CompilerIdC.vcxproj" (default targets).
+      Done Building Project "C:\\Users\\oscar\\OneDrive\\Documents\\AeroSLR\\build\\CMakeFiles\\4.1.0-rc3\\CompilerIdC\\CompilerIdC.vcxproj" (default targets).
       
       Build succeeded.
           0 Warning(s)
           0 Error(s)
       
-      Time Elapsed 00:00:01.60
+      Time Elapsed 00:00:01.54
       
       
       Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
@@ -145,7 +145,7 @@ events:
       Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.vcxproj"
       
       The C compiler identification is MSVC, found in:
-        C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/CMakeFiles/4.1.0-rc3/CompilerIdC/CompilerIdC.exe
+        C:/Users/oscar/OneDrive/Documents/AeroSLR/build/CMakeFiles/4.1.0-rc3/CompilerIdC/CompilerIdC.exe
       
   -
     kind: "find-v1"
@@ -190,7 +190,7 @@ events:
       - "C:/Python313/Scripts/"
       - "C:/Python313/"
       - "C:/ffmpeg/bin/"
-      - "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/%PATH%/"
+      - "C:/Users/oscar/OneDrive/Documents/AeroSLR/build/%PATH%/"
       - "C:/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
       - "C:/Program Files/Go/bin/"
       - "C:/Program Files/dotnet/"
@@ -315,7 +315,7 @@ events:
       - "C:/Python313/Scripts/"
       - "C:/Python313/"
       - "C:/ffmpeg/bin/"
-      - "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/%PATH%/"
+      - "C:/Users/oscar/OneDrive/Documents/AeroSLR/build/%PATH%/"
       - "C:/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
       - "C:/Program Files/Go/bin/"
       - "C:/Program Files/dotnet/"
@@ -407,9 +407,9 @@ events:
       - "C:/ffmpeg/bin/lld-link.com"
       - "C:/ffmpeg/bin/lld-link.exe"
       - "C:/ffmpeg/bin/lld-link"
-      - "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/%PATH%/lld-link.com"
-      - "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/%PATH%/lld-link.exe"
-      - "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/%PATH%/lld-link"
+      - "C:/Users/oscar/OneDrive/Documents/AeroSLR/build/%PATH%/lld-link.com"
+      - "C:/Users/oscar/OneDrive/Documents/AeroSLR/build/%PATH%/lld-link.exe"
+      - "C:/Users/oscar/OneDrive/Documents/AeroSLR/build/%PATH%/lld-link"
       - "C:/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/lld-link.com"
       - "C:/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/lld-link.exe"
       - "C:/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/lld-link"
@@ -584,7 +584,7 @@ events:
       - "C:/Python313/Scripts/"
       - "C:/Python313/"
       - "C:/ffmpeg/bin/"
-      - "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/%PATH%/"
+      - "C:/Users/oscar/OneDrive/Documents/AeroSLR/build/%PATH%/"
       - "C:/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
       - "C:/Program Files/Go/bin/"
       - "C:/Program Files/dotnet/"
@@ -707,7 +707,7 @@ events:
       - "C:/Python313/Scripts/"
       - "C:/Python313/"
       - "C:/ffmpeg/bin/"
-      - "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/%PATH%/"
+      - "C:/Users/oscar/OneDrive/Documents/AeroSLR/build/%PATH%/"
       - "C:/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
       - "C:/Program Files/Go/bin/"
       - "C:/Program Files/dotnet/"
@@ -857,7 +857,7 @@ events:
       - "C:/Python313/Scripts/"
       - "C:/Python313/"
       - "C:/ffmpeg/bin/"
-      - "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/%PATH%/"
+      - "C:/Users/oscar/OneDrive/Documents/AeroSLR/build/%PATH%/"
       - "C:/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
       - "C:/Program Files/Go/bin/"
       - "C:/Program Files/dotnet/"
@@ -1041,9 +1041,9 @@ events:
       The output was:
       0
       MSBuild version 17.6.3+07e294721 for .NET Framework
-      Build started 17/08/2025 11:17:52 AM.
+      Build started 17/08/2025 04:56:13 PM.
       
-      Project "C:\\Users\\oscar\\OneDrive\\Documents\\3DRendererOpenGL\\build\\CMakeFiles\\4.1.0-rc3\\CompilerIdCXX\\CompilerIdCXX.vcxproj" on node 1 (default targets).
+      Project "C:\\Users\\oscar\\OneDrive\\Documents\\AeroSLR\\build\\CMakeFiles\\4.1.0-rc3\\CompilerIdCXX\\CompilerIdCXX.vcxproj" on node 1 (default targets).
       PrepareForBuild:
         Creating directory "Debug\\".
         Creating directory "Debug\\CompilerIdCXX.tlog\\".
@@ -1054,7 +1054,7 @@ events:
         CMakeCXXCompilerId.cpp
       Link:
         C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdCXX.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdCXX.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdCXX.lib" /MACHINE:X64 Debug\\CMakeCXXCompilerId.obj
-        CompilerIdCXX.vcxproj -> C:\\Users\\oscar\\OneDrive\\Documents\\3DRendererOpenGL\\build\\CMakeFiles\\4.1.0-rc3\\CompilerIdCXX\\CompilerIdCXX.exe
+        CompilerIdCXX.vcxproj -> C:\\Users\\oscar\\OneDrive\\Documents\\AeroSLR\\build\\CMakeFiles\\4.1.0-rc3\\CompilerIdCXX\\CompilerIdCXX.exe
       PostBuildEvent:
         for %%i in (cl.exe) do @echo CMAKE_CXX_COMPILER=%%~$PATH:i
         :VCEnd
@@ -1062,13 +1062,13 @@ events:
       FinalizeBuildStatus:
         Deleting file "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild".
         Touching "Debug\\CompilerIdCXX.tlog\\CompilerIdCXX.lastbuildstate".
-      Done Building Project "C:\\Users\\oscar\\OneDrive\\Documents\\3DRendererOpenGL\\build\\CMakeFiles\\4.1.0-rc3\\CompilerIdCXX\\CompilerIdCXX.vcxproj" (default targets).
+      Done Building Project "C:\\Users\\oscar\\OneDrive\\Documents\\AeroSLR\\build\\CMakeFiles\\4.1.0-rc3\\CompilerIdCXX\\CompilerIdCXX.vcxproj" (default targets).
       
       Build succeeded.
           0 Warning(s)
           0 Error(s)
       
-      Time Elapsed 00:00:01.40
+      Time Elapsed 00:00:01.60
       
       
       Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
@@ -1076,7 +1076,7 @@ events:
       Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.vcxproj"
       
       The CXX compiler identification is MSVC, found in:
-        C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/CMakeFiles/4.1.0-rc3/CompilerIdCXX/CompilerIdCXX.exe
+        C:/Users/oscar/OneDrive/Documents/AeroSLR/build/CMakeFiles/4.1.0-rc3/CompilerIdCXX/CompilerIdCXX.exe
       
   -
     kind: "find-v1"
@@ -1121,7 +1121,7 @@ events:
       - "C:/Python313/Scripts/"
       - "C:/Python313/"
       - "C:/ffmpeg/bin/"
-      - "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/%PATH%/"
+      - "C:/Users/oscar/OneDrive/Documents/AeroSLR/build/%PATH%/"
       - "C:/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
       - "C:/Program Files/Go/bin/"
       - "C:/Program Files/dotnet/"
@@ -1213,9 +1213,9 @@ events:
       - "C:/ffmpeg/bin/lld-link.com"
       - "C:/ffmpeg/bin/lld-link.exe"
       - "C:/ffmpeg/bin/lld-link"
-      - "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/%PATH%/lld-link.com"
-      - "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/%PATH%/lld-link.exe"
-      - "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/%PATH%/lld-link"
+      - "C:/Users/oscar/OneDrive/Documents/AeroSLR/build/%PATH%/lld-link.com"
+      - "C:/Users/oscar/OneDrive/Documents/AeroSLR/build/%PATH%/lld-link.exe"
+      - "C:/Users/oscar/OneDrive/Documents/AeroSLR/build/%PATH%/lld-link"
       - "C:/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/lld-link.com"
       - "C:/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/lld-link.exe"
       - "C:/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/lld-link"
@@ -1393,7 +1393,7 @@ events:
       - "C:/Python313/Scripts/"
       - "C:/Python313/"
       - "C:/ffmpeg/bin/"
-      - "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/%PATH%/"
+      - "C:/Users/oscar/OneDrive/Documents/AeroSLR/build/%PATH%/"
       - "C:/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
       - "C:/Program Files/Go/bin/"
       - "C:/Program Files/dotnet/"
@@ -1529,8 +1529,8 @@ events:
     checks:
       - "Detecting C compiler ABI info"
     directories:
-      source: "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/CMakeFiles/CMakeScratch/TryCompile-jktw5j"
-      binary: "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/CMakeFiles/CMakeScratch/TryCompile-jktw5j"
+      source: "C:/Users/oscar/OneDrive/Documents/AeroSLR/build/CMakeFiles/CMakeScratch/TryCompile-orfaq0"
+      binary: "C:/Users/oscar/OneDrive/Documents/AeroSLR/build/CMakeFiles/CMakeScratch/TryCompile-orfaq0"
     cmakeVariables:
       CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
       CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
@@ -1538,38 +1538,38 @@ events:
       variable: "CMAKE_C_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: 'C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/CMakeFiles/CMakeScratch/TryCompile-jktw5j'
+        Change Dir: 'C:/Users/oscar/OneDrive/Documents/AeroSLR/build/CMakeFiles/CMakeScratch/TryCompile-orfaq0'
         
-        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_067a7.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_e5823.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
         MSBuild version 17.6.3+07e294721 for .NET Framework
-        Build started 17/08/2025 11:17:54 AM.
+        Build started 17/08/2025 04:56:15 PM.
         
-        Project "C:\\Users\\oscar\\OneDrive\\Documents\\3DRendererOpenGL\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jktw5j\\cmTC_067a7.vcxproj" on node 1 (default targets).
+        Project "C:\\Users\\oscar\\OneDrive\\Documents\\AeroSLR\\build\\CMakeFiles\\CMakeScratch\\TryCompile-orfaq0\\cmTC_e5823.vcxproj" on node 1 (default targets).
         PrepareForBuild:
-          Creating directory "cmTC_067a7.dir\\Debug\\".
-          Creating directory "C:\\Users\\oscar\\OneDrive\\Documents\\3DRendererOpenGL\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jktw5j\\Debug\\".
-          Creating directory "cmTC_067a7.dir\\Debug\\cmTC_067a7.tlog\\".
+          Creating directory "cmTC_e5823.dir\\Debug\\".
+          Creating directory "C:\\Users\\oscar\\OneDrive\\Documents\\AeroSLR\\build\\CMakeFiles\\CMakeScratch\\TryCompile-orfaq0\\Debug\\".
+          Creating directory "cmTC_e5823.dir\\Debug\\cmTC_e5823.tlog\\".
         InitializeBuildStatus:
-          Creating "cmTC_067a7.dir\\Debug\\cmTC_067a7.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Creating "cmTC_e5823.dir\\Debug\\cmTC_e5823.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
         ClCompile:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"cmTC_067a7.dir\\Debug\\\\" /Fd"cmTC_067a7.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCCompilerABI.c"
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"cmTC_e5823.dir\\Debug\\\\" /Fd"cmTC_e5823.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCCompilerABI.c"
           Microsoft (R) C/C++ Optimizing Compiler Version 19.36.32532 for x64
           Copyright (C) Microsoft Corporation.  All rights reserved.
           CMakeCCompilerABI.c
-          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"cmTC_067a7.dir\\Debug\\\\" /Fd"cmTC_067a7.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCCompilerABI.c"
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"cmTC_e5823.dir\\Debug\\\\" /Fd"cmTC_e5823.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCCompilerABI.c"
         Link:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\link.exe /OUT:"C:\\Users\\oscar\\OneDrive\\Documents\\3DRendererOpenGL\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jktw5j\\Debug\\cmTC_067a7.exe" /INCREMENTAL /ILK:"cmTC_067a7.dir\\Debug\\cmTC_067a7.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/CMakeFiles/CMakeScratch/TryCompile-jktw5j/Debug/cmTC_067a7.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /IMPLIB:"C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/CMakeFiles/CMakeScratch/TryCompile-jktw5j/Debug/cmTC_067a7.lib" /MACHINE:X64  /machine:x64 cmTC_067a7.dir\\Debug\\CMakeCCompilerABI.obj
-          cmTC_067a7.vcxproj -> C:\\Users\\oscar\\OneDrive\\Documents\\3DRendererOpenGL\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jktw5j\\Debug\\cmTC_067a7.exe
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\link.exe /OUT:"C:\\Users\\oscar\\OneDrive\\Documents\\AeroSLR\\build\\CMakeFiles\\CMakeScratch\\TryCompile-orfaq0\\Debug\\cmTC_e5823.exe" /INCREMENTAL /ILK:"cmTC_e5823.dir\\Debug\\cmTC_e5823.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/oscar/OneDrive/Documents/AeroSLR/build/CMakeFiles/CMakeScratch/TryCompile-orfaq0/Debug/cmTC_e5823.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /IMPLIB:"C:/Users/oscar/OneDrive/Documents/AeroSLR/build/CMakeFiles/CMakeScratch/TryCompile-orfaq0/Debug/cmTC_e5823.lib" /MACHINE:X64  /machine:x64 cmTC_e5823.dir\\Debug\\CMakeCCompilerABI.obj
+          cmTC_e5823.vcxproj -> C:\\Users\\oscar\\OneDrive\\Documents\\AeroSLR\\build\\CMakeFiles\\CMakeScratch\\TryCompile-orfaq0\\Debug\\cmTC_e5823.exe
         FinalizeBuildStatus:
-          Deleting file "cmTC_067a7.dir\\Debug\\cmTC_067a7.tlog\\unsuccessfulbuild".
-          Touching "cmTC_067a7.dir\\Debug\\cmTC_067a7.tlog\\cmTC_067a7.lastbuildstate".
-        Done Building Project "C:\\Users\\oscar\\OneDrive\\Documents\\3DRendererOpenGL\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jktw5j\\cmTC_067a7.vcxproj" (default targets).
+          Deleting file "cmTC_e5823.dir\\Debug\\cmTC_e5823.tlog\\unsuccessfulbuild".
+          Touching "cmTC_e5823.dir\\Debug\\cmTC_e5823.tlog\\cmTC_e5823.lastbuildstate".
+        Done Building Project "C:\\Users\\oscar\\OneDrive\\Documents\\AeroSLR\\build\\CMakeFiles\\CMakeScratch\\TryCompile-orfaq0\\cmTC_e5823.vcxproj" (default targets).
         
         Build succeeded.
             0 Warning(s)
             0 Error(s)
         
-        Time Elapsed 00:00:01.37
+        Time Elapsed 00:00:01.36
         
       exitCode: 0
   -
@@ -1609,8 +1609,8 @@ events:
     checks:
       - "Detecting CXX compiler ABI info"
     directories:
-      source: "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/CMakeFiles/CMakeScratch/TryCompile-voeums"
-      binary: "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/CMakeFiles/CMakeScratch/TryCompile-voeums"
+      source: "C:/Users/oscar/OneDrive/Documents/AeroSLR/build/CMakeFiles/CMakeScratch/TryCompile-949131"
+      binary: "C:/Users/oscar/OneDrive/Documents/AeroSLR/build/CMakeFiles/CMakeScratch/TryCompile-949131"
     cmakeVariables:
       CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
       CMAKE_CXX_SCAN_FOR_MODULES: "OFF"
@@ -1619,38 +1619,38 @@ events:
       variable: "CMAKE_CXX_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: 'C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/CMakeFiles/CMakeScratch/TryCompile-voeums'
+        Change Dir: 'C:/Users/oscar/OneDrive/Documents/AeroSLR/build/CMakeFiles/CMakeScratch/TryCompile-949131'
         
-        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_2f762.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_ecc57.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
         MSBuild version 17.6.3+07e294721 for .NET Framework
-        Build started 17/08/2025 11:17:56 AM.
+        Build started 17/08/2025 04:56:17 PM.
         
-        Project "C:\\Users\\oscar\\OneDrive\\Documents\\3DRendererOpenGL\\build\\CMakeFiles\\CMakeScratch\\TryCompile-voeums\\cmTC_2f762.vcxproj" on node 1 (default targets).
+        Project "C:\\Users\\oscar\\OneDrive\\Documents\\AeroSLR\\build\\CMakeFiles\\CMakeScratch\\TryCompile-949131\\cmTC_ecc57.vcxproj" on node 1 (default targets).
         PrepareForBuild:
-          Creating directory "cmTC_2f762.dir\\Debug\\".
-          Creating directory "C:\\Users\\oscar\\OneDrive\\Documents\\3DRendererOpenGL\\build\\CMakeFiles\\CMakeScratch\\TryCompile-voeums\\Debug\\".
-          Creating directory "cmTC_2f762.dir\\Debug\\cmTC_2f762.tlog\\".
+          Creating directory "cmTC_ecc57.dir\\Debug\\".
+          Creating directory "C:\\Users\\oscar\\OneDrive\\Documents\\AeroSLR\\build\\CMakeFiles\\CMakeScratch\\TryCompile-949131\\Debug\\".
+          Creating directory "cmTC_ecc57.dir\\Debug\\cmTC_ecc57.tlog\\".
         InitializeBuildStatus:
-          Creating "cmTC_2f762.dir\\Debug\\cmTC_2f762.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Creating "cmTC_ecc57.dir\\Debug\\cmTC_ecc57.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
         ClCompile:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /GR /Fo"cmTC_2f762.dir\\Debug\\\\" /Fd"cmTC_2f762.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCXXCompilerABI.cpp"
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /GR /Fo"cmTC_ecc57.dir\\Debug\\\\" /Fd"cmTC_ecc57.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCXXCompilerABI.cpp"
           Microsoft (R) C/C++ Optimizing Compiler Version 19.36.32532 for x64
           Copyright (C) Microsoft Corporation.  All rights reserved.
           CMakeCXXCompilerABI.cpp
-          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /GR /Fo"cmTC_2f762.dir\\Debug\\\\" /Fd"cmTC_2f762.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCXXCompilerABI.cpp"
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /GR /Fo"cmTC_ecc57.dir\\Debug\\\\" /Fd"cmTC_ecc57.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCXXCompilerABI.cpp"
         Link:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\link.exe /OUT:"C:\\Users\\oscar\\OneDrive\\Documents\\3DRendererOpenGL\\build\\CMakeFiles\\CMakeScratch\\TryCompile-voeums\\Debug\\cmTC_2f762.exe" /INCREMENTAL /ILK:"cmTC_2f762.dir\\Debug\\cmTC_2f762.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/CMakeFiles/CMakeScratch/TryCompile-voeums/Debug/cmTC_2f762.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /IMPLIB:"C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/CMakeFiles/CMakeScratch/TryCompile-voeums/Debug/cmTC_2f762.lib" /MACHINE:X64  /machine:x64 cmTC_2f762.dir\\Debug\\CMakeCXXCompilerABI.obj
-          cmTC_2f762.vcxproj -> C:\\Users\\oscar\\OneDrive\\Documents\\3DRendererOpenGL\\build\\CMakeFiles\\CMakeScratch\\TryCompile-voeums\\Debug\\cmTC_2f762.exe
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\link.exe /OUT:"C:\\Users\\oscar\\OneDrive\\Documents\\AeroSLR\\build\\CMakeFiles\\CMakeScratch\\TryCompile-949131\\Debug\\cmTC_ecc57.exe" /INCREMENTAL /ILK:"cmTC_ecc57.dir\\Debug\\cmTC_ecc57.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/oscar/OneDrive/Documents/AeroSLR/build/CMakeFiles/CMakeScratch/TryCompile-949131/Debug/cmTC_ecc57.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /IMPLIB:"C:/Users/oscar/OneDrive/Documents/AeroSLR/build/CMakeFiles/CMakeScratch/TryCompile-949131/Debug/cmTC_ecc57.lib" /MACHINE:X64  /machine:x64 cmTC_ecc57.dir\\Debug\\CMakeCXXCompilerABI.obj
+          cmTC_ecc57.vcxproj -> C:\\Users\\oscar\\OneDrive\\Documents\\AeroSLR\\build\\CMakeFiles\\CMakeScratch\\TryCompile-949131\\Debug\\cmTC_ecc57.exe
         FinalizeBuildStatus:
-          Deleting file "cmTC_2f762.dir\\Debug\\cmTC_2f762.tlog\\unsuccessfulbuild".
-          Touching "cmTC_2f762.dir\\Debug\\cmTC_2f762.tlog\\cmTC_2f762.lastbuildstate".
-        Done Building Project "C:\\Users\\oscar\\OneDrive\\Documents\\3DRendererOpenGL\\build\\CMakeFiles\\CMakeScratch\\TryCompile-voeums\\cmTC_2f762.vcxproj" (default targets).
+          Deleting file "cmTC_ecc57.dir\\Debug\\cmTC_ecc57.tlog\\unsuccessfulbuild".
+          Touching "cmTC_ecc57.dir\\Debug\\cmTC_ecc57.tlog\\cmTC_ecc57.lastbuildstate".
+        Done Building Project "C:\\Users\\oscar\\OneDrive\\Documents\\AeroSLR\\build\\CMakeFiles\\CMakeScratch\\TryCompile-949131\\cmTC_ecc57.vcxproj" (default targets).
         
         Build succeeded.
             0 Warning(s)
             0 Error(s)
         
-        Time Elapsed 00:00:01.37
+        Time Elapsed 00:00:01.34
         
       exitCode: 0
   -

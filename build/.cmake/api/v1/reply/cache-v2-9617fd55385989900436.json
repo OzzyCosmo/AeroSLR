@@ -27,7 +27,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "c:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build"
+			"value" : "c:/Users/oscar/OneDrive/Documents/AeroSLR/build"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -431,7 +431,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build/CMakeFiles/pkgRedirects"
+			"value" : "C:/Users/oscar/OneDrive/Documents/AeroSLR/build/CMakeFiles/pkgRedirects"
 		},
 		{
 			"name" : "CMAKE_GENERATOR",
@@ -491,7 +491,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL"
+			"value" : "C:/Users/oscar/OneDrive/Documents/AeroSLR"
 		},
 		{
 			"name" : "CMAKE_INSTALL_PREFIX",
@@ -1155,7 +1155,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL/build"
+			"value" : "C:/Users/oscar/OneDrive/Documents/AeroSLR/build"
 		},
 		{
 			"name" : "hello_window_IS_TOP_LEVEL",
@@ -1179,7 +1179,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/oscar/OneDrive/Documents/3DRendererOpenGL"
+			"value" : "C:/Users/oscar/OneDrive/Documents/AeroSLR"
 		}
 	],
 	"kind" : "cache",

@@ -4,6 +4,8 @@
         "iostream": "cpp",
         "cmath": "cpp",
         "system_error": "cpp",
-        "xlocale": "cpp"
+        "xlocale": "cpp",
+        "xstring": "cpp",
+        "string": "cpp"
     }
 }
