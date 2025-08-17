@@ -14,6 +14,15 @@
 # EXTERNAL cache entries
 ########################
 
+//Value Computed by CMake
+AeroSLR_BINARY_DIR:STATIC=C:/Users/oscar/OneDrive/Documents/AeroSLR/build
+
+//Value Computed by CMake
+AeroSLR_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+AeroSLR_SOURCE_DIR:STATIC=C:/Users/oscar/OneDrive/Documents/AeroSLR
+
 //Path to a program.
 CMAKE_AR:FILEPATH=C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.36.32532/bin/Hostx64/x64/lib.exe
 
@@ -80,7 +89,7 @@ CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE
 CMAKE_FIND_PACKAGE_REDIRECTS_DIR:STATIC=C:/Users/oscar/OneDrive/Documents/AeroSLR/build/CMakeFiles/pkgRedirects
 
 //Install path prefix, prepended onto install directories.
-CMAKE_INSTALL_PREFIX:PATH=C:/Program Files/hello_window
+CMAKE_INSTALL_PREFIX:PATH=C:/Program Files/AeroSLR
 
 //Path to a program.
 CMAKE_LINKER:FILEPATH=C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.36.32532/bin/Hostx64/x64/link.exe
@@ -118,16 +127,16 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=hello_window
+CMAKE_PROJECT_NAME:STATIC=AeroSLR
 
 //Value Computed by CMake
-CMAKE_PROJECT_VERSION:STATIC=1.0.0
+CMAKE_PROJECT_VERSION:STATIC=0.1.0
 
 //Value Computed by CMake
-CMAKE_PROJECT_VERSION_MAJOR:STATIC=1
+CMAKE_PROJECT_VERSION_MAJOR:STATIC=0
 
 //Value Computed by CMake
-CMAKE_PROJECT_VERSION_MINOR:STATIC=0
+CMAKE_PROJECT_VERSION_MINOR:STATIC=1
 
 //Value Computed by CMake
 CMAKE_PROJECT_VERSION_PATCH:STATIC=0
@@ -211,15 +220,6 @@ OPENGL_gl_LIBRARY:STRING=opengl32
 
 //GLU library for win32
 OPENGL_glu_LIBRARY:STRING=glu32
-
-//Value Computed by CMake
-hello_window_BINARY_DIR:STATIC=C:/Users/oscar/OneDrive/Documents/AeroSLR/build
-
-//Value Computed by CMake
-hello_window_IS_TOP_LEVEL:STATIC=ON
-
-//Value Computed by CMake
-hello_window_SOURCE_DIR:STATIC=C:/Users/oscar/OneDrive/Documents/AeroSLR
 
 
 ########################

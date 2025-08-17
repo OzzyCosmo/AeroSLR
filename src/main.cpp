@@ -7,16 +7,43 @@
 // - Documentation        https://dearimgui.com/docs (same as your local docs/ folder).
 // - Introduction, links and more at the top of imgui.cpp
 
+#include <glad/glad.h> // Should be included before glfw3.h
+#include <GLFW/glfw3.h> // Will drag system OpenGL headers
+
+// Fallback definitions for common shader enums in case the platform headers
+// or loader did not provide them (prevents 'undeclared identifier' errors).
+#ifndef GL_VERTEX_SHADER
+#define GL_VERTEX_SHADER 0x8B31
+#endif
+#ifndef GL_FRAGMENT_SHADER
+#define GL_FRAGMENT_SHADER 0x8B30
+#endif
+
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
+#include <math.h>
 #define GL_SILENCE_DEPRECATION
 #include <string>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
 #endif
-#include <GLFW/glfw3.h> // Will drag system OpenGL headers
+
+// Vertex Shader source code
+const char* vertexShaderSource = "#version 330 core\n"
+"layout (location = 0) in vec3 aPos;\n"
+"void main()\n"
+"{\n"
+"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+"}\0";
+//Fragment Shader source code
+const char* fragmentShaderSource = "#version 330 core\n"
+"out vec4 FragColor;\n"
+"void main()\n"
+"{\n"
+"   FragColor = vec4(0.8f, 0.3f, 0.02f, 1.0f);\n"
+"}\n\0";
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -83,6 +110,19 @@ int main(int, char**)
     if (window == nullptr)
         return 1;
     glfwMakeContextCurrent(window);
+    
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        fprintf(stderr, "Failed to initialize GLAD\n");
+        return -1;
+    }
+
+    // Check OpenGL version
+    const GLubyte* renderer = glGetString(GL_RENDERER);
+    const GLubyte* version = glGetString(GL_VERSION);
+    fprintf(stdout, "Renderer: %s\n", renderer);
+    fprintf(stdout, "OpenGL version supported %s\n", version);
+
     glfwSwapInterval(1); // Enable vsync
 
     // Setup Dear ImGui context
@@ -135,10 +175,16 @@ int main(int, char**)
     bool show_console_window = true;
     bool show_inspector_window = true; 
     bool show_properties_window = true;
+    bool show_viewport_window = true;
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     std::string Version_number = "0.1.0-alpha";
+    
+    // FPS COUNTER
+    double previous_time = glfwGetTime();
+    int frame_count = 0;
+    float fps = 0.0f;
 
     // Main loop
 #ifdef __EMSCRIPTEN__
@@ -150,6 +196,16 @@ int main(int, char**)
     while (!glfwWindowShouldClose(window))
 #endif
     {
+        // FPS calculation
+        double current_time = glfwGetTime();
+        frame_count++;
+        if (current_time - previous_time >= 1.0)
+        {
+            fps = (float)frame_count / (float)(current_time - previous_time);
+            previous_time = current_time;
+            frame_count = 0;
+        }
+
         // Poll and handle events (inputs, window resize, etc.)
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
@@ -198,6 +254,39 @@ int main(int, char**)
                  }
                 ImGui::EndMenu();
             }
+            if (ImGui::BeginMenu("Windows"))
+            {
+                if (ImGui::MenuItem("Scene Hierarchy", nullptr, show_scene_hierarchy_window))
+                {
+                    show_scene_hierarchy_window = !show_scene_hierarchy_window;
+                }
+                if (ImGui::MenuItem("Console", nullptr, show_console_window))
+                {
+                    show_console_window = !show_console_window;
+                }
+                if (ImGui::MenuItem("Inspector", nullptr, show_inspector_window))
+                {
+                    show_inspector_window = !show_inspector_window;
+                }
+                if (ImGui::MenuItem("Properties", nullptr, show_properties_window))
+                {
+                    show_properties_window = !show_properties_window;
+                }
+                if (ImGui::MenuItem("Viewport", nullptr, show_viewport_window))
+                {
+                    show_viewport_window = !show_viewport_window;
+                }
+                ImGui::EndMenu();
+            }
+
+            {
+                char fps_str[16];
+                snprintf(fps_str, sizeof(fps_str), "FPS: %.1f", fps);
+                float text_width = ImGui::CalcTextSize(fps_str).x;
+                ImGui::SetCursorPosX(ImGui::GetWindowWidth() - text_width - ImGui::GetStyle().ItemSpacing.x * 2);
+                ImGui::TextUnformatted(fps_str);
+            }
+
             ImGui::EndMainMenuBar();
         }
 
@@ -277,6 +366,48 @@ int main(int, char**)
 
             ImGui::Text("This panel is not functional...");  
             ImGui::End();   
+        }
+        
+        // VIEWPORT WINDOW
+        if (show_viewport_window)
+        {
+            float viewport_x = 500;
+            float viewport_y = 30;
+            float viewport_width = ImGui::GetIO().DisplaySize.x - 1003; 
+            float viewport_height = ImGui::GetIO().DisplaySize.y - 530;
+            
+            ImGui::SetNextWindowPos(ImVec2(viewport_x, viewport_y), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(viewport_width, viewport_height), ImGuiCond_Always);
+
+            ImGui::Begin("Viewport", nullptr,
+                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+            
+            ImDrawList* draw_list = ImGui::GetWindowDrawList();
+            ImVec2 canvas_pos = ImGui::GetCursorScreenPos();
+            ImVec2 canvas_size = ImGui::GetContentRegionAvail();
+            
+            if (canvas_size.x > 50.0f && canvas_size.y > 50.0f)
+            {
+                draw_list->AddRectFilled(canvas_pos, 
+                                       ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + canvas_size.y), 
+                                       IM_COL32(20, 20, 20, 255)); // VIEWPORT BACKGROUND COLOUR
+                
+                // Add a border
+                draw_list->AddRect(canvas_pos, 
+                                 ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + canvas_size.y), 
+                                 IM_COL32(100, 100, 100, 255));
+                
+                // RENDER OPENGL HERE
+
+                
+
+            }
+            else
+            {
+                ImGui::Text("Viewport too small to render");
+            }
+            
+            ImGui::End();
         } 
 
         // Rendering

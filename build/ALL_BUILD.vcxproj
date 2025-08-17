@@ -174,9 +174,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\oscar\OneDrive\Documents\AeroSLR\build\hello_window.vcxproj">
-      <Project>{1E10BA57-E405-3A07-BD65-62B3E21E5B8F}</Project>
-      <Name>hello_window</Name>
+    <ProjectReference Include="C:\Users\oscar\OneDrive\Documents\AeroSLR\build\AeroSLR.vcxproj">
+      <Project>{64679FB6-6D42-36C1-8690-716D025B4DFD}</Project>
+      <Name>AeroSLR</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
