@@ -5,12 +5,19 @@ AeroSLR v0.1.0-alpha
 # Update Log
 <hr>
 
+(note that the percentages are estimations and may be extremely inaccurate)
+
 ## v0.1.0-alpha
 
 2025/8/17
 
 **UI**
 
-- Added toolbar controls [MINOR-FUNCTION]
-- Added project hierarchy window [PLACEHOLDER]
-- Added console window [PLACEHOLDER]
+- Added toolbar controls [10%]
+- Added project hierarchy window [1%]
+- Added console window [1%]
+- Added inspector window [1%]
+- Added properties window [1%]
+
+**Functionality**
+- Added OpenGL Viewport [1%]
