@@ -4,8 +4,13 @@ AeroSLR v0.1.0-alpha
 
 # Features
 <hr>
-## v0.1.0-alpha##
+
+## v0.1.0-alpha
+
+2025/8/17
+
 **UI**
+
 - Added toolbar controls [MINOR-FUNCTION]
 - Added project hierarchy window [PLACEHOLDER]
 - Added console window [PLACEHOLDER]
