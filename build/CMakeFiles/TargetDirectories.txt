@@ -1,3 +1,0 @@
-C:/Users/oscar/OneDrive/Documents/AeroSLR/build/CMakeFiles/AeroSLR.dir
-C:/Users/oscar/OneDrive/Documents/AeroSLR/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/oscar/OneDrive/Documents/AeroSLR/build/CMakeFiles/ZERO_CHECK.dir
