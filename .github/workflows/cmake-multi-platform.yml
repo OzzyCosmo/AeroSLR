@@ -78,3 +78,28 @@ jobs:
           Write-Host "No tests configured, skipping test step"
         }
       shell: pwsh
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: AeroSLR-Windows-${{ matrix.build_type }}
+        path: ${{ steps.strings.outputs.build-output-dir }}/${{ matrix.build_type }}/AeroSLR.exe
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: AeroSLR-Windows-Release
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: AeroSLR.exe
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
