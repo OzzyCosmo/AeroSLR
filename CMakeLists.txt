@@ -42,4 +42,8 @@ if(WIN32)
         # Add necessary runtime libraries
         legacy_stdio_definitions
     )
+else()
+    # For Linux
+    find_package(glfw3 REQUIRED)
+    target_link_libraries(AeroSLR PRIVATE glfw)
 endif()
