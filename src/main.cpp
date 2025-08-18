@@ -674,7 +674,6 @@ int main(int, char**)
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
             
-            // Clear only the viewport area to blue background
             glClearColor(0.2f, 0.2f, 0.21f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
