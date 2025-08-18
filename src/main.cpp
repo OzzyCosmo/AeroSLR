@@ -403,7 +403,7 @@ int main(int, char**)
                 ImGui::Separator();
                 if (ImGui::MenuItem("Triangle"))
                 {
-            // create new triangle id and default name
+            // Create new triangle id and default name
             char default_name[32];
             snprintf(default_name, sizeof(default_name), "Triangle %d", next_triangle_id);
             triangle_ids.push_back(next_triangle_id);
