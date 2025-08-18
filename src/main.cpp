@@ -154,8 +154,6 @@ int main(int, char**)
     //IM_ASSERT(font != nullptr);
 
     // STATES/VALUES --------------------------------------------
-    bool show_about_window = false;
-
     bool show_scene_hierarchy_window = true;
     bool show_console_window = true;
     bool show_inspector_window = true; 
@@ -169,7 +167,6 @@ int main(int, char**)
     int next_triangle_id = 0;
     // Rename popup state
     int rename_target = -1;
-    bool show_rename_window = false;
     char rename_buf[64] = {0};
 
     ImVec4 clear_color = ImVec4(0.1f, 0.1f, 0.1f, 1.00f);  // WINDOW BACKGROUND
@@ -340,7 +337,7 @@ int main(int, char**)
             if (ImGui::BeginMenu("Help"))
             {
                 if (ImGui::MenuItem("About AeroSLR")) {
-                    show_about_window = true;
+                    ImGui::OpenPopup("About AeroSLR");
                  }
                 ImGui::EndMenu();
             }
@@ -434,7 +431,7 @@ int main(int, char**)
 
                 if (ImGui::BeginPopupContextItem())
                 {
-                    ImGui::Text(node_label);
+                    ImGui::Text("%s", node_label);
                     ImGui::Separator();
 
                     if (ImGui::MenuItem("Rename"))
@@ -442,7 +439,7 @@ int main(int, char**)
                         rename_target = i;
                         strncpy(rename_buf, triangle_names[i].c_str(), sizeof(rename_buf));
                         rename_buf[sizeof(rename_buf) - 1] = '\0';
-                        show_rename_window = true;
+                        ImGui::OpenPopup("Rename Triangle");
                     }
                     if (ImGui::MenuItem("Duplicate"))
                     {
@@ -473,7 +470,8 @@ int main(int, char**)
                 if (rename_target == triangle_to_delete)
                 {
                     rename_target = -1;
-                    show_rename_window = false; // Cancel any pending rename
+                    // Close any open rename popup
+                    ImGui::CloseCurrentPopup();
                 }
                 else if (rename_target > triangle_to_delete)
                     rename_target--;
@@ -571,65 +569,53 @@ int main(int, char**)
         // MODAL/POPUP WINDOWS - Rendered right before ImGui::Render() to appear on top
         
         // ABOUT WINDOW
-        if (show_about_window)
+        if (ImGui::BeginPopupModal("About AeroSLR", NULL, ImGuiWindowFlags_AlwaysAutoResize))
         {
-            // Center the window on screen
-            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-            ImGui::SetNextWindowSize(ImVec2(500.0f, 250.0f), ImGuiCond_Appearing);
+            ImGui::Text("AeroSLR v%s", Version_number.c_str());
+            ImGui::Separator();
+            ImGui::Text("(c) 2025 Oscar Forbes");
+            ImGui::Text("AeroSLR (Slim, Lightweight Renderer) by Oscar Forbes");
 
-            if (ImGui::Begin("About AeroSLR", &show_about_window, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize))
-            {
-                ImGui::Text("AeroSLR v%s", Version_number.c_str());
-                ImGui::Separator();
-                ImGui::Text("(c) 2025 Oscar Forbes");
-                ImGui::Text("AeroSLR (Slim, Lightweight Renderer) by Oscar Forbes");
-
-                ImGui::SeparatorText("Technologies");
-                ImGui::Text("Written in - C++");
-                ImGui::Text("UI Framework - Dear ImGui");
-                ImGui::Text("Graphics API - OpenGL");
-            }
-            ImGui::End();
+            ImGui::SeparatorText("Technologies");
+            ImGui::Text("Written in - C++");
+            ImGui::Text("UI Framework - Dear ImGui");
+            ImGui::Text("Graphics API - OpenGL");
+            
+            ImGui::Separator();
+            if (ImGui::Button("Close"))
+                ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
         }
 
         // RENAME WINDOW
-        if (show_rename_window)
+        if (ImGui::BeginPopupModal("Rename Triangle", NULL, ImGuiWindowFlags_AlwaysAutoResize))
         {
-            // Center the window on screen
-            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-            ImGui::SetNextWindowSize(ImVec2(300.0f, 120.0f), ImGuiCond_Appearing);
-
-            if (ImGui::Begin("Rename Triangle", &show_rename_window, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize))
+            ImGui::Text("Rename Triangle:");
+            ImGui::Separator();
+            
+            // Auto-focus the input field when the window appears
+            if (ImGui::IsWindowAppearing())
+                ImGui::SetKeyboardFocusHere();
+                
+            ImGui::InputText("##NewName", rename_buf, sizeof(rename_buf));
+            ImGui::Separator();
+            
+            if (ImGui::Button("OK") || ImGui::IsKeyPressed(ImGuiKey_Enter))
             {
-                ImGui::Text("Rename Triangle:");
-                ImGui::Separator();
-                
-                // Auto-focus the input field when the window appears
-                if (ImGui::IsWindowAppearing())
-                    ImGui::SetKeyboardFocusHere();
-                    
-                ImGui::InputText("##NewName", rename_buf, sizeof(rename_buf));
-                ImGui::Separator();
-                
-                if (ImGui::Button("OK") || ImGui::IsKeyPressed(ImGuiKey_Enter))
+                if (rename_target >= 0 && rename_target < (int)triangle_names.size())
                 {
-                    if (rename_target >= 0 && rename_target < (int)triangle_names.size())
-                    {
-                        triangle_names[rename_target] = std::string(rename_buf);
-                    }
-                    show_rename_window = false;
-                    rename_target = -1;
+                    triangle_names[rename_target] = std::string(rename_buf);
                 }
-                ImGui::SameLine();
-                if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(ImGuiKey_Escape))
-                {
-                    show_rename_window = false;
-                    rename_target = -1;
-                }
+                rename_target = -1;
+                ImGui::CloseCurrentPopup();
             }
-            ImGui::End();
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(ImGuiKey_Escape))
+            {
+                rename_target = -1;
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
         }
 
         // PREPARE RENDERING - Set up framebuffer before any rendering
