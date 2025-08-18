@@ -7,5 +7,17 @@
         "xlocale": "cpp",
         "xstring": "cpp",
         "string": "cpp"
-    }
+    },
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.generator": "Visual Studio 17 2022",
+    "cmake.platform": "x64",
+    "cmake.toolset": "v143",
+    "cmake.configureOnOpen": true,
+    "cmake.configureArgs": [
+        "-T", "v143",
+        "-A", "x64"
+    ],
+    "cmake.buildArgs": [
+        "--config", "Debug"
+    ]
 }
