@@ -120,11 +120,14 @@ int main(int, char**)
     if (monitor) // It's possible we don't have a monitor (e.g. when running headless)
         main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(monitor);
     ImGuiStyle& style = ImGui::GetStyle();
+    style.Alpha = 1.0f; // Ensure full opacity
     
     // Customize colors
-    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);  // Dark gray background
-    // style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f); // Darker menu bar
-    style.Colors[ImGuiCol_ChildBg] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f); // Child window background
+    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.0f);  // App windows
+    style.Colors[ImGuiCol_ChildBg] = ImVec4(0.12f, 0.12f, 0.12f, 1.0f);   // Panels
+    style.Colors[ImGuiCol_PopupBg] = ImVec4(0.10f, 0.10f, 0.10f, 0.98f);  // Popups/modals
+    style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.12f, 0.12f, 0.12f, 1.0f); // Menu bar
+    style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.65f); // Darken background behind modals
     
     style.ScaleAllSizes(main_scale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
     style.FontScaleDpi = main_scale;        // Set initial font scale. (using io.ConfigDpiScaleFonts=true makes this unnecessary. We leave both here for documentation purpose)
@@ -168,8 +171,11 @@ int main(int, char**)
     // Rename popup state
     int rename_target = -1;
     char rename_buf[64] = {0};
+    // Deferred popup triggers (open at root ID stack)
+    bool open_about_popup = false;
+    bool open_rename_popup = false;
 
-    ImVec4 clear_color = ImVec4(0.1f, 0.1f, 0.1f, 1.00f);  // WINDOW BACKGROUND
+    ImVec4 clear_color = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);  // WINDOW BACKGROUND (very dark)
 
     std::string Version_number = "0.1.0-alpha";
     
@@ -336,9 +342,11 @@ int main(int, char**)
             }
             if (ImGui::BeginMenu("Help"))
             {
-                if (ImGui::MenuItem("About AeroSLR")) {
-                    ImGui::OpenPopup("About AeroSLR");
-                 }
+                if (ImGui::MenuItem("About AeroSLR"))
+                {
+                    // Defer popup open to root to avoid ID stack mismatch
+                    open_about_popup = true;
+                }
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Windows"))
@@ -437,9 +445,9 @@ int main(int, char**)
                     if (ImGui::MenuItem("Rename"))
                     {
                         rename_target = i;
-                        strncpy(rename_buf, triangle_names[i].c_str(), sizeof(rename_buf));
-                        rename_buf[sizeof(rename_buf) - 1] = '\0';
-                        ImGui::OpenPopup("Rename Triangle");
+                        strncpy_s(rename_buf, sizeof(rename_buf), triangle_names[i].c_str(), _TRUNCATE);
+                        // Defer popup open to root to avoid ID stack mismatch
+                        open_rename_popup = true;
                     }
                     if (ImGui::MenuItem("Duplicate"))
                     {
@@ -551,7 +559,7 @@ int main(int, char**)
             // Use the full available content region for the OpenGL canvas
             if (canvas_size.x > 0 && canvas_size.y > 0)
             {
-                // Reserve the entire content space for OpenGL rendering
+                // Reserve the entire content space for OpenGL rendering (no ImGui background)
                 ImGui::InvisibleButton("opengl_canvas", canvas_size);
                 
                 // Store viewport information for later OpenGL rendering (outside ImGui pass)
@@ -566,7 +574,10 @@ int main(int, char**)
             ImGui::End();
         } 
 
-        // MODAL/POPUP WINDOWS - Rendered right before ImGui::Render() to appear on top
+    // MODAL/POPUP WINDOWS - Rendered right before ImGui::Render() to appear on top
+    // Open any deferred popups at the root ID stack
+    if (open_about_popup) { ImGui::OpenPopup("About AeroSLR"); open_about_popup = false; }
+    if (open_rename_popup) { ImGui::OpenPopup("Rename Triangle"); open_rename_popup = false; }
         
         // ABOUT WINDOW
         if (ImGui::BeginPopupModal("About AeroSLR", NULL, ImGuiWindowFlags_AlwaysAutoResize))
@@ -659,8 +670,7 @@ int main(int, char**)
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
             
-            glClearColor(0.2f, 0.2f, 0.21f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+            // Do not clear the viewport area; let OpenGL content define its background
 
             // Render all triangles in the vector
             for (int i = 0; i < triangle_ids.size(); i++)
