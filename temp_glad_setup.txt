@@ -1,0 +1,34 @@
+GLAD OpenGL 3.3 Core Setup Instructions:
+
+1. Go to: https://glad.dav1d.de/
+2. Configure:
+   - Language: C/C++
+   - Specification: OpenGL
+   - API: gl = 3.3 (or 4.6 for your RTX 4070)
+   - Profile: Core
+   - Extensions: Default is fine
+   - Options: ✓ Generate a loader
+
+3. Click GENERATE and download the ZIP
+
+4. Replace these files in your project:
+   - dependencies/glad/include/glad/glad.h
+   - dependencies/glad/include/KHR/khrplatform.h  
+   - dependencies/glad/src/glad.c
+
+5. Rebuild project: cmake --build . --config Debug
+
+The new GLAD will include functions like:
+- glGenVertexArrays
+- glBindVertexArray  
+- glGenBuffers
+- glBindBuffer
+- glBufferData
+- glCreateShader
+- glCompileShader
+- glCreateProgram
+- glLinkProgram
+- glUseProgram
+- glDrawArrays
+
+Which are needed for modern OpenGL triangle rendering.

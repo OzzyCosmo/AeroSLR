@@ -10,40 +10,20 @@
 #include <glad/glad.h> // Should be included before glfw3.h
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
 
-// Fallback definitions for common shader enums in case the platform headers
-// or loader did not provide them (prevents 'undeclared identifier' errors).
-#ifndef GL_VERTEX_SHADER
-#define GL_VERTEX_SHADER 0x8B31
-#endif
-#ifndef GL_FRAGMENT_SHADER
-#define GL_FRAGMENT_SHADER 0x8B30
-#endif
-
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
 #include <math.h>
+#include <vector>
 #define GL_SILENCE_DEPRECATION
 #include <string>
+#include <cstring>
+#include <iostream>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
+#include <iostream>
 #endif
-
-// Vertex Shader source code
-const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\0";
-//Fragment Shader source code
-const char* fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(0.8f, 0.3f, 0.02f, 1.0f);\n"
-"}\n\0";
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -90,12 +70,12 @@ int main(int, char**)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
 #else
-    // GL 3.0 + GLSL 130
-    const char* glsl_version = "#version 130";
+    // GL 3.3 + GLSL 330 - Updated for modern OpenGL
+    const char* glsl_version = "#version 330";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.3+ Core Profile
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.3+ forward compatible
 #endif
 
     // Create window with graphics context
@@ -133,14 +113,20 @@ int main(int, char**)
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
     // Setup Dear ImGui style
+    //ImGui::StyleColorsDark();
     ImGui::StyleColorsDark();
-    //ImGui::StyleColorsLight();
-
+    
     // Setup scaling
     float main_scale = 1.0f;
     if (monitor) // It's possible we don't have a monitor (e.g. when running headless)
         main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(monitor);
     ImGuiStyle& style = ImGui::GetStyle();
+    
+    // Customize colors
+    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);  // Dark gray background
+    // style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f); // Darker menu bar
+    style.Colors[ImGuiCol_ChildBg] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f); // Child window background
+    
     style.ScaleAllSizes(main_scale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
     style.FontScaleDpi = main_scale;        // Set initial font scale. (using io.ConfigDpiScaleFonts=true makes this unnecessary. We leave both here for documentation purpose)
 
@@ -168,7 +154,7 @@ int main(int, char**)
     ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\Arial.ttf");
     //IM_ASSERT(font != nullptr);
 
-    // STATES --------------------------------------------
+    // STATES/VALUES --------------------------------------------
     bool show_about_window = false;
 
     bool show_scene_hierarchy_window = true;
@@ -176,8 +162,18 @@ int main(int, char**)
     bool show_inspector_window = true; 
     bool show_properties_window = true;
     bool show_viewport_window = true;
+    
+    // Triangle management - use vector to track individual triangles
+    std::vector<int> triangle_ids;
+    // Parallel vector to store persistent triangle names (so InputText has stable storage)
+    std::vector<std::string> triangle_names;
+    int next_triangle_id = 0;
+    // Rename popup state
+    int rename_target = -1;
+    bool show_rename_window = false;
+    char rename_buf[64] = {0};
 
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    ImVec4 clear_color = ImVec4(0.1f, 0.1f, 0.1f, 1.00f);  // WINDOW BACKGROUND
 
     std::string Version_number = "0.1.0-alpha";
     
@@ -185,6 +181,101 @@ int main(int, char**)
     double previous_time = glfwGetTime();
     int frame_count = 0;
     float fps = 0.0f;
+
+    // Track the on-screen canvas rect used for OpenGL rendering inside the ImGui Viewport window
+    ImVec2 viewport_canvas_pos = ImVec2(0.0f, 0.0f);   // Top-left in ImGui screen space
+    ImVec2 viewport_canvas_size = ImVec2(0.0f, 0.0f);  // Size in pixels (ImGui screen space)
+
+    // OPENGL STUFF HERE
+
+    // SHADERS
+    const char* vertexShaderSource = R"(
+        #version 330 core
+        layout (location = 0) in vec2 aPos;
+        
+        void main()
+        {
+            gl_Position = vec4(aPos, 0.0, 1.0);
+        }
+    )";
+    
+    const char* fragmentShaderSource = R"(
+        #version 330 core
+        out vec4 FragColor;
+        
+        void main()
+        {
+            FragColor = vec4(1.0, 1.0, 1.0, 1.0); // Bright white color
+        }
+    )";
+    
+    // Compile vertex shader
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+    
+    // Check for vertex shader compile errors
+    GLint success;
+    GLchar infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        fprintf(stderr, "Vertex shader compilation failed: %s\n", infoLog);
+    }
+    
+    // Compile fragment shader
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+    
+    // Check for fragment shader compile errors
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+        fprintf(stderr, "Fragment shader compilation failed: %s\n", infoLog);
+    }
+    
+    // Create shader program
+    GLuint shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+    
+    // Check for linking errors
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        fprintf(stderr, "Shader program linking failed: %s\n", infoLog);
+    }
+    
+    // Clean up shaders (no longer needed after linking)
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+    // TRIANGLE 🔺
+    GLfloat verts[] = {
+        +0.0f, +0.5f,   // Top vertex
+        -0.5f, -0.5f,   // Bottom left
+        +0.5f, -0.5f    // Bottom right
+    };
+
+    // Create VAO (Vertex Array Object) - REQUIRED for Core Profile
+    GLuint VAO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+    
+    // Create and setup VBO (Vertex Buffer Object)
+    GLuint vertexBufferID;
+    glGenBuffers(1, &vertexBufferID);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
+
+    // Setup vertex attributes (must be done while VAO is bound)
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    
+    // Unbind VAO (good practice)
+    glBindVertexArray(0);
 
     // Main loop
 #ifdef __EMSCRIPTEN__
@@ -290,24 +381,7 @@ int main(int, char**)
             ImGui::EndMainMenuBar();
         }
 
-        // ABOUT WINDOW
-
-        if (show_about_window)
-        {
-            ImGui::SetNextWindowSize(ImVec2(500.0f, 250.0f));
-
-            ImGui::Begin("About AeroSLR", &show_about_window);
-            ImGui::Text("AeroSLR v%s", Version_number.c_str());
-            ImGui::Separator();
-            ImGui::Text("(c) 2025 Oscar Forbes");
-            ImGui::Text("AeroSLR (Slim, Lightweight Renderer) by Oscar Forbes");
-
-            ImGui::SeparatorText("Technologies");
-            ImGui::Text("Written in - C++");
-            ImGui::Text("UI Framework - Dear ImGui");
-            ImGui::Text("Graphics API - OpenGL");
-            ImGui::End();
-        }
+        // ABOUT WINDOW - moved to render on top
 
         // SCENE HIERARCHY WINDOW
 
@@ -318,14 +392,98 @@ int main(int, char**)
 
             ImGui::Begin("Scene Hierarchy", nullptr,
                         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse); 
-            
 
-            ImGui::Text("This panel is not functional...");  
+            if (ImGui::Button("Add..."))
+            {
+                ImGui::OpenPopup("Add...");
+            }
+
+        if (ImGui::BeginPopup("Add..."))
+            {
+                ImGui::Text("Select an object to add:");
+                ImGui::Separator();
+                if (ImGui::MenuItem("Triangle"))
+                {
+            // create new triangle id and default name
+            char default_name[32];
+            snprintf(default_name, sizeof(default_name), "Triangle %d", next_triangle_id);
+            triangle_ids.push_back(next_triangle_id);
+            triangle_names.push_back(std::string(default_name));
+            next_triangle_id++;
+            ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+
+            ImGui::Separator();
+
+            // Track which triangle to delete (if any)
+            int triangle_to_delete = -1;
+
+            for (int i = 0; i < triangle_ids.size(); i++)
+            {
+                ImGui::PushID(triangle_ids[i]);
+
+                // Use the persistent name for display so edits stick
+                const char* node_label = triangle_names[i].c_str();
+
+                // Use Selectable instead of TreeNode for right-click functionality
+                if (ImGui::Selectable(node_label, false))
+                {
+                    // left-click selection handling can go here
+                }
+
+                if (ImGui::BeginPopupContextItem())
+                {
+                    ImGui::Text(node_label);
+                    ImGui::Separator();
+
+                    if (ImGui::MenuItem("Rename"))
+                    {
+                        rename_target = i;
+                        strncpy(rename_buf, triangle_names[i].c_str(), sizeof(rename_buf));
+                        rename_buf[sizeof(rename_buf) - 1] = '\0';
+                        show_rename_window = true;
+                    }
+                    if (ImGui::MenuItem("Duplicate"))
+                    {
+                        char default_name[32];
+                        snprintf(default_name, sizeof(default_name), "Triangle %d", next_triangle_id);
+                        triangle_ids.push_back(next_triangle_id);
+                        triangle_names.push_back(std::string(default_name));
+                        next_triangle_id++;
+                    }
+                    if (ImGui::MenuItem("Delete"))
+                    {
+                        triangle_to_delete = i;
+                    }
+                    ImGui::EndPopup();
+                }
+
+                ImGui::PopID();
+            }
+            
+            // Delete the triangle outside the loop to avoid iterator issues
+            if (triangle_to_delete >= 0)
+            {
+                triangle_ids.erase(triangle_ids.begin() + triangle_to_delete);
+                // Keep names vector in sync
+                if (triangle_to_delete < (int)triangle_names.size())
+                    triangle_names.erase(triangle_names.begin() + triangle_to_delete);
+                // If the rename target was after the deleted index, adjust it
+                if (rename_target == triangle_to_delete)
+                {
+                    rename_target = -1;
+                    show_rename_window = false; // Cancel any pending rename
+                }
+                else if (rename_target > triangle_to_delete)
+                    rename_target--;
+            }
+
             ImGui::End();   
-        } 
+        }
 
         // CONSOLE
-
         if (show_console_window)
         {
             ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - 500), ImGuiCond_Always);
@@ -369,38 +527,39 @@ int main(int, char**)
         }
         
         // VIEWPORT WINDOW
-        if (show_viewport_window)
+    if (show_viewport_window)
         {
             float viewport_x = 500;
             float viewport_y = 30;
-            float viewport_width = ImGui::GetIO().DisplaySize.x - 1003; 
+            float viewport_width = ImGui::GetIO().DisplaySize.x - 1003;
             float viewport_height = ImGui::GetIO().DisplaySize.y - 530;
+            
+            // Ensure minimum size
+            if (viewport_width < 400.0f) viewport_width = 400.0f;
+            if (viewport_height < 300.0f) viewport_height = 300.0f;
+            
+            // Debug output
+            printf("Viewport size: %.1fx%.1f at (%.1f, %.1f)\n", viewport_width, viewport_height, viewport_x, viewport_y);
             
             ImGui::SetNextWindowPos(ImVec2(viewport_x, viewport_y), ImGuiCond_Always);
             ImGui::SetNextWindowSize(ImVec2(viewport_width, viewport_height), ImGuiCond_Always);
 
             ImGui::Begin("Viewport", nullptr,
-                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground);
             
-            ImDrawList* draw_list = ImGui::GetWindowDrawList();
+            // Get the full content region available in the viewport window
             ImVec2 canvas_pos = ImGui::GetCursorScreenPos();
             ImVec2 canvas_size = ImGui::GetContentRegionAvail();
             
-            if (canvas_size.x > 50.0f && canvas_size.y > 50.0f)
+            // Use the full available content region for the OpenGL canvas
+            if (canvas_size.x > 0 && canvas_size.y > 0)
             {
-                draw_list->AddRectFilled(canvas_pos, 
-                                       ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + canvas_size.y), 
-                                       IM_COL32(20, 20, 20, 255)); // VIEWPORT BACKGROUND COLOUR
+                // Reserve the entire content space for OpenGL rendering
+                ImGui::InvisibleButton("opengl_canvas", canvas_size);
                 
-                // Add a border
-                draw_list->AddRect(canvas_pos, 
-                                 ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + canvas_size.y), 
-                                 IM_COL32(100, 100, 100, 255));
-                
-                // RENDER OPENGL HERE
-
-                
-
+                // Store viewport information for later OpenGL rendering (outside ImGui pass)
+                viewport_canvas_pos = canvas_pos;
+                viewport_canvas_size = canvas_size;
             }
             else
             {
@@ -410,12 +569,131 @@ int main(int, char**)
             ImGui::End();
         } 
 
-        // Rendering
-       ImGui::Render();
+        // MODAL/POPUP WINDOWS - Rendered right before ImGui::Render() to appear on top
+        
+        // ABOUT WINDOW
+        if (show_about_window)
+        {
+            // Center the window on screen
+            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+            ImGui::SetNextWindowSize(ImVec2(500.0f, 250.0f), ImGuiCond_Appearing);
+
+            if (ImGui::Begin("About AeroSLR", &show_about_window, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize))
+            {
+                ImGui::Text("AeroSLR v%s", Version_number.c_str());
+                ImGui::Separator();
+                ImGui::Text("(c) 2025 Oscar Forbes");
+                ImGui::Text("AeroSLR (Slim, Lightweight Renderer) by Oscar Forbes");
+
+                ImGui::SeparatorText("Technologies");
+                ImGui::Text("Written in - C++");
+                ImGui::Text("UI Framework - Dear ImGui");
+                ImGui::Text("Graphics API - OpenGL");
+            }
+            ImGui::End();
+        }
+
+        // RENAME WINDOW
+        if (show_rename_window)
+        {
+            // Center the window on screen
+            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+            ImGui::SetNextWindowSize(ImVec2(300.0f, 120.0f), ImGuiCond_Appearing);
+
+            if (ImGui::Begin("Rename Triangle", &show_rename_window, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize))
+            {
+                ImGui::Text("Rename Triangle:");
+                ImGui::Separator();
+                
+                // Auto-focus the input field when the window appears
+                if (ImGui::IsWindowAppearing())
+                    ImGui::SetKeyboardFocusHere();
+                    
+                ImGui::InputText("##NewName", rename_buf, sizeof(rename_buf));
+                ImGui::Separator();
+                
+                if (ImGui::Button("OK") || ImGui::IsKeyPressed(ImGuiKey_Enter))
+                {
+                    if (rename_target >= 0 && rename_target < (int)triangle_names.size())
+                    {
+                        triangle_names[rename_target] = std::string(rename_buf);
+                    }
+                    show_rename_window = false;
+                    rename_target = -1;
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(ImGuiKey_Escape))
+                {
+                    show_rename_window = false;
+                    rename_target = -1;
+                }
+            }
+            ImGui::End();
+        }
+
+        // PREPARE RENDERING - Set up framebuffer before any rendering
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
+        
+        // Clear the entire framebuffer first
+        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        // RENDER OPENGL TRIANGLES FIRST (so ImGui appears on top)
+        if (show_viewport_window)
+        {
+            // Use the actual canvas rect captured during the ImGui pass
+            ImVec2 canvas_pos = viewport_canvas_pos;
+            ImVec2 canvas_size = viewport_canvas_size;
+
+            // Guard: if canvas is not valid, skip
+            if (canvas_size.x <= 0.0f || canvas_size.y <= 0.0f)
+                goto RENDER_IMGUI;
+
+            // Convert ImGui screen-space (top-left origin) to OpenGL framebuffer coords (bottom-left origin)
+            float scale_x = (float)display_w / ImGui::GetIO().DisplaySize.x;
+            float scale_y = (float)display_h / ImGui::GetIO().DisplaySize.y;
+
+            const ImVec2 main_vp_pos = ImGui::GetMainViewport()->Pos;
+            int opengl_viewport_x = (int)((canvas_pos.x - main_vp_pos.x) * scale_x);
+            int opengl_viewport_y = (int)((display_h - ((canvas_pos.y - main_vp_pos.y) + canvas_size.y) * scale_y));
+            int opengl_viewport_w = (int)(canvas_size.x * scale_x);
+            int opengl_viewport_h = (int)(canvas_size.y * scale_y);
+            
+            // Debug output
+            printf("OpenGL viewport: %dx%d at (%d, %d)\n", opengl_viewport_w, opengl_viewport_h, opengl_viewport_x, opengl_viewport_y);
+            printf("Triangle count: %d\n", (int)triangle_ids.size());
+            
+            glViewport(opengl_viewport_x, opengl_viewport_y, opengl_viewport_w, opengl_viewport_h);
+            glEnable(GL_SCISSOR_TEST);
+            glScissor(opengl_viewport_x, opengl_viewport_y, opengl_viewport_w, opengl_viewport_h);
+            
+            glDisable(GL_DEPTH_TEST);
+            glDisable(GL_CULL_FACE);
+            
+            // Clear only the viewport area to blue background
+            glClearColor(0.2f, 0.2f, 0.21f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            // Render all triangles in the vector
+            for (int i = 0; i < triangle_ids.size(); i++)
+            {
+                glUseProgram(shaderProgram);
+                glBindVertexArray(VAO);
+                glDrawArrays(GL_TRIANGLES, 0, 3);
+                glBindVertexArray(0);
+            }
+            
+            glDisable(GL_SCISSOR_TEST);
+            glViewport(0, 0, display_w, display_h);
+        }
+
+RENDER_IMGUI:
+        // RENDER IMGUI ON TOP
+        ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
@@ -425,6 +703,10 @@ int main(int, char**)
 #endif
 
     // Cleanup
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &vertexBufferID);
+    glDeleteProgram(shaderProgram);
+    
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

@@ -1,4 +1,4 @@
-AeroSLR (slim, lightweight renderer) is a basic 3D renderer written in C++ using Dear ImGUI and OpenGL.
+AeroSLR (simple, lightweight renderer) is a basic 3D renderer written in C++ using Dear ImGUI and OpenGL.
 
 AeroSLR v0.1.0-alpha
 
@@ -9,15 +9,15 @@ AeroSLR v0.1.0-alpha
 
 ## v0.1.0-alpha
 
-2025/8/17
+2025/8/18
 
 **UI**
 
 - Added toolbar controls [10%]
-- Added project hierarchy window [1%]
+- Added project hierarchy window [3%]
 - Added console window [1%]
 - Added inspector window [1%]
 - Added properties window [1%]
 
 **Functionality**
-- Added OpenGL Viewport [1%]
+- Added OpenGL Viewport [2%]
