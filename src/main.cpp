@@ -162,6 +162,9 @@ int main(int, char**)
     bool show_inspector_window = true; 
     bool show_properties_window = true;
     bool show_viewport_window = true;
+    bool show_viewport_toolbar_window = true;
+
+    bool viewport_wireframe = false;
     
     // Triangle management - use vector to track individual triangles
     std::vector<int> triangle_ids;
@@ -530,12 +533,42 @@ int main(int, char**)
             ImGui::Text("This panel is not functional...");  
             ImGui::End();   
         }
+
+        // VIEWPORT TOOLBAR
+
+        if (show_viewport_toolbar_window)
+        {
+            float viewport_width = ImGui::GetIO().DisplaySize.x - 1003;
+
+            ImGui::SetNextWindowPos(ImVec2(500.0f, 30.0f));
+            ImGui::SetNextWindowSize(ImVec2(viewport_width, 40.0f));
+
+            ImGui::Begin("Viewport Toolbar", nullptr,
+                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
+
+            if (ImGui::Button("Wireframe View"))
+            {
+                viewport_wireframe = true;
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Solid View"))
+            {
+                viewport_wireframe = false;
+            }
+            
+            ImGui::End();
+
+        }
+
+
         
         // VIEWPORT WINDOW
     if (show_viewport_window)
         {
             float viewport_x = 500;
-            float viewport_y = 30;
+            float viewport_y = 70;
             float viewport_width = ImGui::GetIO().DisplaySize.x - 1003;
             float viewport_height = ImGui::GetIO().DisplaySize.y - 530;
             
@@ -677,6 +710,14 @@ int main(int, char**)
             {
                 glUseProgram(shaderProgram);
                 glBindVertexArray(VAO);
+                if (viewport_wireframe)
+                {
+                    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                }
+                else 
+                {
+                    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                }
                 glDrawArrays(GL_TRIANGLES, 0, 3);
                 glBindVertexArray(0);
             }
