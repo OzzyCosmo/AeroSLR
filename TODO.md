@@ -7,8 +7,15 @@ This is the TODO.md file to help me keep track of my learning/AeroSLR developmen
 #### OpenGL, Rendering and Viewport
 
 - [ ] Use index rendering
-- [ ] Add a wireframe mode with glPolygonMode  
+
+- [ ] Add a rectangle test shape
+- [ ] Add colour properties
 
 #### UI and UX
 
-- [ ] Integrate the wireframe mode into the UI
+### In-Progress
+
+### Completed
+
+- [x] Added a wireframe and solid viewport mode with glPolygonMode  
+- [x] Integrate a viewport mode selector

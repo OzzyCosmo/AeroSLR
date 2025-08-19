@@ -7,7 +7,7 @@ AeroSLR v0.1.0-alpha
 
 (note that the percentages are estimations and may be extremely inaccurate)
 
-## v0.1.0-alpha
+## v0.1.0-pre-alpha
 
 2025/8/18
 
