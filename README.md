@@ -21,3 +21,4 @@ AeroSLR v0.1.0-alpha
 
 **Functionality**
 - Added OpenGL Viewport [2%]
+- Primitive geometric shapes [2%]
