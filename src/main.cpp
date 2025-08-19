@@ -585,7 +585,7 @@ int main(int, char**)
             ImGui::Text("AeroSLR v%s", Version_number.c_str());
             ImGui::Separator();
             ImGui::Text("(c) 2025 Oscar Forbes");
-            ImGui::Text("AeroSLR (Slim, Lightweight Renderer) by Oscar Forbes");
+            ImGui::Text("AeroSLR (Simple, Lightweight Renderer) by Oscar Forbes");
 
             ImGui::SeparatorText("Technologies");
             ImGui::Text("Written in - C++");
