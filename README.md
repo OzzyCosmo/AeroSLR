@@ -1,3 +1,6 @@
+
+<img width="1032" height="474" alt="Banner" src="https://github.com/user-attachments/assets/261da1a6-7eb3-4e98-8578-c64806a4581b" />
+
 AeroSLR (simple, lightweight renderer) is a basic 3D renderer written in C++ using Dear ImGUI and OpenGL.
 
 AeroSLR v0.1.0-alpha
