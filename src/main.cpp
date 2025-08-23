@@ -13,6 +13,8 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "imgui_internal.h" // For DockBuilder APIs
+
 #include <stdio.h>
 #include <math.h>
 #include <vector>
@@ -20,6 +22,9 @@
 #include <string>
 #include <cstring>
 #include <iostream>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
 #endif
@@ -109,7 +114,7 @@ int main(int, char**)
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
 
     // Setup Dear ImGui style
     //ImGui::StyleColorsDark();
@@ -178,6 +183,14 @@ int main(int, char**)
     bool open_about_popup = false;
     bool open_rename_popup = false;
 
+    {
+        char default_name[32];
+        snprintf(default_name, sizeof(default_name), "Triangle %d", next_triangle_id);
+        triangle_ids.push_back(next_triangle_id);
+        triangle_names.push_back(std::string(default_name));
+        next_triangle_id++;
+    }
+
     ImVec4 clear_color = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);  // WINDOW BACKGROUND (very dark)
 
     std::string Version_number = "0.1.0-alpha";
@@ -191,16 +204,24 @@ int main(int, char**)
     ImVec2 viewport_canvas_pos = ImVec2(0.0f, 0.0f);   // Top-left in ImGui screen space
     ImVec2 viewport_canvas_size = ImVec2(0.0f, 0.0f);  // Size in pixels (ImGui screen space)
 
+    // Remember dock node ids for toolbar and center viewport to keep windows in place
+    static ImGuiID g_dock_id_toolbar = 0;
+    static ImGuiID g_dock_id_center = 0;
+
     // OPENGL STUFF HERE
 
     // SHADERS
     const char* vertexShaderSource = R"(
         #version 330 core
         layout (location = 0) in vec2 aPos;
+        uniform mat4 model;
+        uniform mat4 view;
+        uniform mat4 projection;
         
         void main()
         {
-            gl_Position = vec4(aPos, 0.0, 1.0);
+            // aPos is a vec2, expand to vec4 with z=0.0
+            gl_Position = projection * view * model * vec4(aPos, 0.0, 1.0);
         }
     )";
     
@@ -214,45 +235,30 @@ int main(int, char**)
         }
     )";
     
+    // ogl
+    // Transform will be computed per-frame in the render loop
+
     // Compile vertex shader
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShader);
-    
-    // Check for vertex shader compile errors
-    GLint success;
-    GLchar infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        fprintf(stderr, "Vertex shader compilation failed: %s\n", infoLog);
-    }
     
     // Compile fragment shader
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
     glCompileShader(fragmentShader);
     
-    // Check for fragment shader compile errors
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        fprintf(stderr, "Fragment shader compilation failed: %s\n", infoLog);
-    }
-    
     // Create shader program
     GLuint shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
-    
-    // Check for linking errors
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        fprintf(stderr, "Shader program linking failed: %s\n", infoLog);
-    }
-    
+
+    // Query uniform locations for model/view/projection so we can upload matrices later
+    GLint modelLoc = glGetUniformLocation(shaderProgram, "model");
+    GLint viewLoc = glGetUniformLocation(shaderProgram, "view");
+    GLint projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+
     // Clean up shaders (no longer needed after linking)
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
@@ -320,6 +326,72 @@ int main(int, char**)
         ImGui::NewFrame();
 
         // MAIN CODE HERE -------------------------------------------------------------
+
+        // Simple DockSpace for resizable panels
+        {
+            ImGuiViewport* vp = ImGui::GetMainViewport();
+            ImGui::SetNextWindowPos(vp->WorkPos);
+            ImGui::SetNextWindowSize(vp->WorkSize);
+            ImGui::SetNextWindowViewport(vp->ID);
+            
+            ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
+                ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus |
+                ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
+                
+            ImGui::Begin("DockSpaceWindow", nullptr, window_flags);
+            
+            ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
+            ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+            
+            // Build initial dock layout to create shared splitters
+            static bool dock_layout_built = false;
+            if (!dock_layout_built)
+            {
+                dock_layout_built = true;
+                
+                // Clear any existing layout
+                ImGui::DockBuilderRemoveNode(dockspace_id);
+                ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
+                ImGui::DockBuilderSetNodeSize(dockspace_id, vp->WorkSize);
+                
+                // Create the main layout: Left | Center | Right
+                //                         Bottom spans Left+Center
+                ImGuiID dock_left, dock_center, dock_right, dock_bottom;
+                
+                // Split main area: Left (500px) | Remaining
+                ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 500.0f / vp->WorkSize.x, &dock_left, &dock_center);
+                
+                // Split remaining: Center | Right (500px) 
+                ImGui::DockBuilderSplitNode(dock_center, ImGuiDir_Right, 500.0f / (vp->WorkSize.x - 500.0f), &dock_right, &dock_center);
+                
+                // Split bottom from center area: Center | Bottom (500px)
+                ImGui::DockBuilderSplitNode(dock_center, ImGuiDir_Down, 500.0f / vp->WorkSize.y, &dock_bottom, &dock_center);
+                
+                // Split center vertically for toolbar and viewport: Toolbar (40px) | Viewport
+                ImGuiID dock_toolbar, dock_viewport;
+                ImGui::DockBuilderSplitNode(dock_center, ImGuiDir_Up, 40.0f / (vp->WorkSize.y - 500.0f), &dock_toolbar, &dock_viewport);
+                
+                // Configure toolbar node to have no tabs
+                if (ImGuiDockNode* toolbar_node = ImGui::DockBuilderGetNode(dock_toolbar))
+                    toolbar_node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
+                
+                // Split right panel: Inspector (top) | Properties (bottom)
+                ImGuiID dock_right_top, dock_right_bottom;
+                ImGui::DockBuilderSplitNode(dock_right, ImGuiDir_Up, 0.6f, &dock_right_top, &dock_right_bottom);
+                
+                // Dock all windows to create shared splitters
+                ImGui::DockBuilderDockWindow("Scene Hierarchy", dock_left);
+                ImGui::DockBuilderDockWindow("Console", dock_bottom);  
+                ImGui::DockBuilderDockWindow("Inspector", dock_right_top);
+                ImGui::DockBuilderDockWindow("Properties", dock_right_bottom);
+                ImGui::DockBuilderDockWindow("Viewport Toolbar", dock_toolbar);
+                ImGui::DockBuilderDockWindow("Viewport", dock_viewport);
+                
+                ImGui::DockBuilderFinish(dockspace_id);
+            }
+            
+            ImGui::End();
+        }
 
         // TOOLBAR ----------------------------
 
@@ -394,11 +466,10 @@ int main(int, char**)
 
         if (show_scene_hierarchy_window)
         {
-            ImGui::SetNextWindowPos(ImVec2(0, 30), ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImVec2(500, ImGui::GetIO().DisplaySize.y - 528), ImGuiCond_Always); 
-
-            ImGui::Begin("Scene Hierarchy", nullptr,
-                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse); 
+            ImGui::SetNextWindowPos(ImVec2(0, 30), ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowSize(ImVec2(500, ImGui::GetIO().DisplaySize.y - 530), ImGuiCond_FirstUseEver);
+            
+            ImGui::Begin("Scene Hierarchy", nullptr, ImGuiWindowFlags_NoCollapse);
 
             if (ImGui::Button("Add..."))
             {
@@ -494,11 +565,10 @@ int main(int, char**)
         // CONSOLE
         if (show_console_window)
         {
-            ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - 500), ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x - 500, 500), ImGuiCond_Always);
+            ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - 500), ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x - 500, 500), ImGuiCond_FirstUseEver);
 
-            ImGui::Begin("Console", nullptr, 
-                ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+            ImGui::Begin("Console", nullptr, ImGuiWindowFlags_NoCollapse);
 
             ImGui::Text("This panel is not functional...");
             ImGui::End();
@@ -508,11 +578,10 @@ int main(int, char**)
 
         if (show_inspector_window)
         {
-            ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 500, 30), ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImVec2(500, 700), ImGuiCond_Always); 
+            ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 500, 30), ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowSize(ImVec2(500, 700), ImGuiCond_FirstUseEver);
 
-            ImGui::Begin("Inspector", nullptr,
-                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse); 
+            ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoCollapse);
             
 
             ImGui::Text("This panel is not functional...");  
@@ -523,11 +592,10 @@ int main(int, char**)
 
         if (show_properties_window)
         {
-            ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 500, 729), ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImVec2(500, ImGui::GetIO().DisplaySize.y - 528), ImGuiCond_Always);
+            ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 500, 730), ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowSize(ImVec2(500, ImGui::GetIO().DisplaySize.y - 530), ImGuiCond_FirstUseEver);
 
-            ImGui::Begin("Properties", nullptr,
-                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse); 
+            ImGui::Begin("Properties", nullptr, ImGuiWindowFlags_NoCollapse);
             
 
             ImGui::Text("This panel is not functional...");  
@@ -538,13 +606,8 @@ int main(int, char**)
 
         if (show_viewport_toolbar_window)
         {
-            float viewport_width = ImGui::GetIO().DisplaySize.x - 1003;
-
-            ImGui::SetNextWindowPos(ImVec2(500.0f, 30.0f));
-            ImGui::SetNextWindowSize(ImVec2(viewport_width, 40.0f));
-
             ImGui::Begin("Viewport Toolbar", nullptr,
-                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
+                        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar);
 
             if (ImGui::Button("Wireframe View"))
             {
@@ -559,40 +622,38 @@ int main(int, char**)
             }
             
             ImGui::End();
-
         }
 
 
         
         // VIEWPORT WINDOW
-    if (show_viewport_window)
+        if (show_viewport_window)
         {
-            float viewport_x = 500;
-            float viewport_y = 70;
-            float viewport_width = ImGui::GetIO().DisplaySize.x - 1003;
-            float viewport_height = ImGui::GetIO().DisplaySize.y - 530;
-            
-            // Ensure minimum size
-            if (viewport_width < 400.0f) viewport_width = 400.0f;
-            if (viewport_height < 300.0f) viewport_height = 300.0f;
-            
-            // Debug output
-            printf("Viewport size: %.1fx%.1f at (%.1f, %.1f)\n", viewport_width, viewport_height, viewport_x, viewport_y);
-            
-            ImGui::SetNextWindowPos(ImVec2(viewport_x, viewport_y), ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImVec2(viewport_width, viewport_height), ImGuiCond_Always);
-
             ImGui::Begin("Viewport", nullptr,
-                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground);
+                        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse);
             
             // Get the full content region available in the viewport window
             ImVec2 canvas_pos = ImGui::GetCursorScreenPos();
             ImVec2 canvas_size = ImGui::GetContentRegionAvail();
             
-            // Use the full available content region for the OpenGL canvas
+            // Debug info to see what's happening
+            ImGui::Text("Canvas pos: %.1f, %.1f", canvas_pos.x, canvas_pos.y);
+            ImGui::Text("Canvas size: %.1f x %.1f", canvas_size.x, canvas_size.y);
+            ImGui::Text("Triangle count: %d", (int)triangle_ids.size());
+            
+            // Adjust canvas size to account for debug text
+            canvas_size = ImGui::GetContentRegionAvail();
+            
+            // Use the remaining content region for the OpenGL canvas
             if (canvas_size.x > 0 && canvas_size.y > 0)
             {
-                // Reserve the entire content space for OpenGL rendering (no ImGui background)
+                // Add a colored rectangle to visualize the canvas area
+                ImDrawList* draw_list = ImGui::GetWindowDrawList();
+                ImVec2 canvas_end = ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + canvas_size.y);
+                draw_list->AddRectFilled(canvas_pos, canvas_end, IM_COL32(50, 50, 50, 255));
+                draw_list->AddRect(canvas_pos, canvas_end, IM_COL32(255, 255, 255, 255));
+                
+                // Reserve the entire content space for OpenGL rendering
                 ImGui::InvisibleButton("opengl_canvas", canvas_size);
                 
                 // Store viewport information for later OpenGL rendering (outside ImGui pass)
@@ -601,7 +662,10 @@ int main(int, char**)
             }
             else
             {
-                ImGui::Text("Viewport too small to render");
+                ImGui::Text("Canvas too small: %.1f x %.1f", canvas_size.x, canvas_size.y);
+                // Reset canvas info if viewport is too small
+                viewport_canvas_pos = ImVec2(0, 0);
+                viewport_canvas_size = ImVec2(0, 0);
             }
             
             ImGui::End();
@@ -671,16 +735,15 @@ int main(int, char**)
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // RENDER OPENGL TRIANGLES FIRST (so ImGui appears on top)
-        if (show_viewport_window)
+        // RENDER IMGUI FIRST to create the UI layout
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        // RENDER OPENGL TRIANGLES AFTER IMGUI (in a specific scissor area)
+        if (show_viewport_window && viewport_canvas_size.x > 0 && viewport_canvas_size.y > 0)
         {
-            // Use the actual canvas rect captured during the ImGui pass
             ImVec2 canvas_pos = viewport_canvas_pos;
             ImVec2 canvas_size = viewport_canvas_size;
-
-            // Guard: if canvas is not valid, skip
-            if (canvas_size.x <= 0.0f || canvas_size.y <= 0.0f)
-                goto RENDER_IMGUI;
 
             // Convert ImGui screen-space (top-left origin) to OpenGL framebuffer coords (bottom-left origin)
             float scale_x = (float)display_w / ImGui::GetIO().DisplaySize.x;
@@ -692,44 +755,59 @@ int main(int, char**)
             int opengl_viewport_w = (int)(canvas_size.x * scale_x);
             int opengl_viewport_h = (int)(canvas_size.y * scale_y);
             
-            // Debug output
-            printf("OpenGL viewport: %dx%d at (%d, %d)\n", opengl_viewport_w, opengl_viewport_h, opengl_viewport_x, opengl_viewport_y);
-            printf("Triangle count: %d\n", (int)triangle_ids.size());
-            
-            glViewport(opengl_viewport_x, opengl_viewport_y, opengl_viewport_w, opengl_viewport_h);
-            glEnable(GL_SCISSOR_TEST);
-            glScissor(opengl_viewport_x, opengl_viewport_y, opengl_viewport_w, opengl_viewport_h);
-            
-            glDisable(GL_DEPTH_TEST);
-            glDisable(GL_CULL_FACE);
-            
-            // Do not clear the viewport area; let OpenGL content define its background
-
-            // Render all triangles in the vector
-            for (int i = 0; i < triangle_ids.size(); i++)
+            // Ensure viewport dimensions are positive and reasonable
+            if (opengl_viewport_w > 0 && opengl_viewport_h > 0 && 
+                opengl_viewport_x >= 0 && opengl_viewport_y >= 0 &&
+                opengl_viewport_x < display_w && opengl_viewport_y < display_h)
             {
-                glUseProgram(shaderProgram);
-                glBindVertexArray(VAO);
-                if (viewport_wireframe)
-                {
-                    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                }
-                else 
-                {
-                    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                }
-                glDrawArrays(GL_TRIANGLES, 0, 3);
-                glBindVertexArray(0);
-            }
-            
-            glDisable(GL_SCISSOR_TEST);
-            glViewport(0, 0, display_w, display_h);
-        }
+                // Set viewport and scissor test to limit rendering to our canvas area
+                glViewport(opengl_viewport_x, opengl_viewport_y, opengl_viewport_w, opengl_viewport_h);
+                glEnable(GL_SCISSOR_TEST);
+                glScissor(opengl_viewport_x, opengl_viewport_y, opengl_viewport_w, opengl_viewport_h);
+                
+                // Clear only our canvas area with a dark background
+                glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
+                
+                glDisable(GL_DEPTH_TEST);
+                glDisable(GL_CULL_FACE);
+                
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
 
-RENDER_IMGUI:
-        // RENDER IMGUI ON TOP
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+                glm::mat4 view = glm::mat4(1.0f);
+                view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+                glm::mat4 projection;
+                float aspect = (float)opengl_viewport_w / (float)opengl_viewport_h;
+                projection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 100.0f);
+
+                // Upload matrices to the shader (ensure program is bound)
+                glUseProgram(shaderProgram);
+                glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+                glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+                for (int i = 0; i < triangle_ids.size(); i++)
+                {
+                    glBindVertexArray(VAO);
+                    if (viewport_wireframe)
+                    {
+                        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                    }
+                    else 
+                    {
+                        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                    }
+                    glDrawArrays(GL_TRIANGLES, 0, 3);
+                    glBindVertexArray(0);
+                }
+                
+                // Disable scissor test and restore full viewport
+                glDisable(GL_SCISSOR_TEST);
+                glViewport(0, 0, display_w, display_h);
+            }
+        }
 
         glfwSwapBuffers(window);
     }
