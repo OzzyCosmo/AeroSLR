@@ -8,7 +8,7 @@ AeroSLR v0.1.0-alpha
 # Update Log
 <hr>
 
-(note that the percentages are estimations and may be extremely inaccurate)
+(note that the percentages are estimations and are subject to being extremely inaccurate)
 
 ## v0.1.0-pre-alpha
 
