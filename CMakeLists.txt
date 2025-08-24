@@ -27,7 +27,28 @@ target_include_directories(AeroSLR PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ImGUI/backends"
     "${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ImGUI/examples/libs/glfw/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/dependencies/glad/include"
+    # Project's bundled headers (GLM, KHR, etc.)
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
+
+# Try to locate GLM headers and add their include directory
+set(GLM_FOUND FALSE)
+set(_GLM_CANDIDATE_DIRS
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "C:/Users/oscar/Downloads/glad/include"
+    "C:/Users/oscar/Downloads/glad (1)/include"
+)
+foreach(_dir IN LISTS _GLM_CANDIDATE_DIRS)
+    if (EXISTS "${_dir}/glm/glm.hpp")
+        message(STATUS "Found GLM in: ${_dir}")
+        target_include_directories(AeroSLR PRIVATE "${_dir}")
+        set(GLM_FOUND TRUE)
+        break()
+    endif()
+endforeach()
+if (NOT GLM_FOUND)
+    message(WARNING "GLM not found in default locations. Set an include path containing glm/glm.hpp if build fails.")
+endif()
 
 find_package(OpenGL REQUIRED)
 target_link_libraries(AeroSLR PRIVATE OpenGL::GL)
