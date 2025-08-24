@@ -265,9 +265,13 @@ int main(int, char**)
 
     // TRIANGLE 🔺
     GLfloat verts[] = {
-        +0.0f, +0.5f,   // Top vertex
+        +0.5f, +0.5f,   // Top vertex
         -0.5f, -0.5f,   // Bottom left
-        +0.5f, -0.5f    // Bottom right
+        +0.5f, -0.5f,   // Bottom right
+
+        -0.5f, +0.5f,   // Top vertex
+        -0.5f, -0.5f,   // Bottom left
+        +0.5f, +0.5f    // Top right
     };
 
     // Create VAO (Vertex Array Object) - REQUIRED for Core Profile
@@ -773,10 +777,10 @@ int main(int, char**)
                 glDisable(GL_CULL_FACE);
                 
                 glm::mat4 model = glm::mat4(1.0f);
-                // model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 1.0f));
+                model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.6f, 0.0f, 1.0f));
 
                 glm::mat4 view = glm::mat4(1.0f);
-                view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+                view = glm::translate(view, glm::vec3(0.0f, 0.0f, -2.0f));
 
                 glm::mat4 projection;
                 float aspect = (float)opengl_viewport_w / (float)opengl_viewport_h;
@@ -799,7 +803,7 @@ int main(int, char**)
                     {
                         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                     }
-                    glDrawArrays(GL_TRIANGLES, 0, 3);
+                    glDrawArrays(GL_TRIANGLES, 0, 6);
                     glBindVertexArray(0);
                 }
                 
