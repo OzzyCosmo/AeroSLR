@@ -773,7 +773,7 @@ int main(int, char**)
                 glDisable(GL_CULL_FACE);
                 
                 glm::mat4 model = glm::mat4(1.0f);
-                model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+                // model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 1.0f));
 
                 glm::mat4 view = glm::mat4(1.0f);
                 view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
