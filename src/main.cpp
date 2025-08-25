@@ -158,8 +158,11 @@ int main(int, char**)
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf");
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf");
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf");
-    ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\Arial.ttf");
-    //IM_ASSERT(font != nullptr);
+    ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\Arial.ttf", 16.0f);
+    if (font == nullptr) {
+        fprintf(stderr, "WARNING: Failed to load Arial font, using default font\n");
+        // Don't return error, just use default font
+    }
 
     // STATES/VALUES --------------------------------------------
     bool show_scene_hierarchy_window = true;
@@ -171,24 +174,20 @@ int main(int, char**)
 
     bool viewport_wireframe = false;
     
-    // Triangle management - use vector to track individual triangles
-    std::vector<int> triangle_ids;
-    // Parallel vector to store persistent triangle names (so InputText has stable storage)
-    std::vector<std::string> triangle_names;
-    int next_triangle_id = 0;
-    // Rename popup state
+    std::vector<int> cube_ids;
+    std::vector<std::string> cube_names;
+    int next_cube_id = 0;
     int rename_target = -1;
     char rename_buf[64] = {0};
-    // Deferred popup triggers (open at root ID stack)
     bool open_about_popup = false;
     bool open_rename_popup = false;
 
     {
         char default_name[32];
-        snprintf(default_name, sizeof(default_name), "Triangle %d", next_triangle_id);
-        triangle_ids.push_back(next_triangle_id);
-        triangle_names.push_back(std::string(default_name));
-        next_triangle_id++;
+        snprintf(default_name, sizeof(default_name), "Cube %d", next_cube_id);
+        cube_ids.push_back(next_cube_id);
+        cube_names.push_back(std::string(default_name));
+        next_cube_id++;
     }
 
     ImVec4 clear_color = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);  // WINDOW BACKGROUND (very dark)
@@ -213,15 +212,14 @@ int main(int, char**)
     // SHADERS
     const char* vertexShaderSource = R"(
         #version 330 core
-        layout (location = 0) in vec2 aPos;
+        layout (location = 0) in vec3 aPos;
         uniform mat4 model;
         uniform mat4 view;
         uniform mat4 projection;
         
         void main()
         {
-            // aPos is a vec2, expand to vec4 with z=0.0
-            gl_Position = projection * view * model * vec4(aPos, 0.0, 1.0);
+            gl_Position = projection * view * model * vec4(aPos, 1.0);
         }
     )";
     
@@ -236,66 +234,112 @@ int main(int, char**)
     )";
     
     // ogl
-    // Transform will be computed per-frame in the render loop
+// Transform will be computed per-frame in the render loop
 
-    // Compile vertex shader
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShader);
     
-    // Compile fragment shader
+    GLint success;
+    GLchar infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        fprintf(stderr, "ERROR: Vertex shader compilation failed\n%s\n", infoLog);
+        return -1;
+    }
+    
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
     glCompileShader(fragmentShader);
     
-    // Create shader program
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+        fprintf(stderr, "ERROR: Fragment shader compilation failed\n%s\n", infoLog);
+        return -1;
+    }
+    
     GLuint shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
+    
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        fprintf(stderr, "ERROR: Shader program linking failed\n%s\n", infoLog);
+        return -1;
+    }
 
-    // Query uniform locations for model/view/projection so we can upload matrices later
     GLint modelLoc = glGetUniformLocation(shaderProgram, "model");
     GLint viewLoc = glGetUniformLocation(shaderProgram, "view");
     GLint projectionLoc = glGetUniformLocation(shaderProgram, "projection");
 
-    // Clean up shaders (no longer needed after linking)
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    // TRIANGLE 🔺
-    GLfloat verts[] = {
-        +0.5f, +0.5f,   // Top vertex
-        -0.5f, -0.5f,   // Bottom left
-        +0.5f, -0.5f,   // Bottom right
+    // CUBE 🟩
+    float vertices[] = {
+        -0.5f, -0.5f, -0.5f,  
+        0.5f, -0.5f, -0.5f, 
+        0.5f,  0.5f, -0.5f, 
+        0.5f,  0.5f, -0.5f, 
+        -0.5f,  0.5f, -0.5f, 
+        -0.5f, -0.5f, -0.5f,
 
-        -0.5f, +0.5f,   // Top vertex
-        -0.5f, -0.5f,   // Bottom left
-        +0.5f, +0.5f    // Top right
+        -0.5f, -0.5f,  0.5f,
+        0.5f, -0.5f,  0.5f,
+        0.5f,  0.5f,  0.5f,
+        0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
+
+        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+
+        0.5f,  0.5f,  0.5f,
+        0.5f,  0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f,  0.5f,
+        0.5f,  0.5f,  0.5f,
+
+        -0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f,  0.5f,
+        0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f, -0.5f,    
+
+        -0.5f,  0.5f, -0.5f,
+        0.5f,  0.5f, -0.5f,
+        0.5f,  0.5f,  0.5f,
+        0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f
     };
 
-    // Create VAO (Vertex Array Object) - REQUIRED for Core Profile
-    GLuint VAO;
+    unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    
     glBindVertexArray(VAO);
     
-    // Create and setup VBO (Vertex Buffer Object)
-    GLuint vertexBufferID;
-    glGenBuffers(1, &vertexBufferID);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    // Setup vertex attributes (must be done while VAO is bound)
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     
-    // Unbind VAO (good practice)
     glBindVertexArray(0);
 
     // Main loop
 #ifdef __EMSCRIPTEN__
-    // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
-    // You may manually call LoadIniSettingsFromMemory() to load settings from your own storage.
     io.IniFilename = nullptr;
     EMSCRIPTEN_MAINLOOP_BEGIN
 #else
@@ -312,11 +356,6 @@ int main(int, char**)
             frame_count = 0;
         }
 
-        // Poll and handle events (inputs, window resize, etc.)
-        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-        // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
-        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
-        // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         glfwPollEvents();
         if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
         {
@@ -324,14 +363,12 @@ int main(int, char**)
             continue;
         }
 
-        // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
         // MAIN CODE HERE -------------------------------------------------------------
 
-        // Simple DockSpace for resizable panels
         {
             ImGuiViewport* vp = ImGui::GetMainViewport();
             ImGui::SetNextWindowPos(vp->WorkPos);
@@ -347,43 +384,32 @@ int main(int, char**)
             ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
             ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
             
-            // Build initial dock layout to create shared splitters
             static bool dock_layout_built = false;
             if (!dock_layout_built)
             {
                 dock_layout_built = true;
                 
-                // Clear any existing layout
                 ImGui::DockBuilderRemoveNode(dockspace_id);
                 ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
                 ImGui::DockBuilderSetNodeSize(dockspace_id, vp->WorkSize);
                 
-                // Create the main layout: Left | Center | Right
-                //                         Bottom spans Left+Center
                 ImGuiID dock_left, dock_center, dock_right, dock_bottom;
                 
-                // Split main area: Left (500px) | Remaining
                 ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 500.0f / vp->WorkSize.x, &dock_left, &dock_center);
                 
-                // Split remaining: Center | Right (500px) 
                 ImGui::DockBuilderSplitNode(dock_center, ImGuiDir_Right, 500.0f / (vp->WorkSize.x - 500.0f), &dock_right, &dock_center);
                 
-                // Split bottom from center area: Center | Bottom (500px)
                 ImGui::DockBuilderSplitNode(dock_center, ImGuiDir_Down, 500.0f / vp->WorkSize.y, &dock_bottom, &dock_center);
                 
-                // Split center vertically for toolbar and viewport: Toolbar (40px) | Viewport
                 ImGuiID dock_toolbar, dock_viewport;
                 ImGui::DockBuilderSplitNode(dock_center, ImGuiDir_Up, 40.0f / (vp->WorkSize.y - 500.0f), &dock_toolbar, &dock_viewport);
                 
-                // Configure toolbar node to have no tabs
                 if (ImGuiDockNode* toolbar_node = ImGui::DockBuilderGetNode(dock_toolbar))
                     toolbar_node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
                 
-                // Split right panel: Inspector (top) | Properties (bottom)
                 ImGuiID dock_right_top, dock_right_bottom;
                 ImGui::DockBuilderSplitNode(dock_right, ImGuiDir_Up, 0.6f, &dock_right_top, &dock_right_bottom);
                 
-                // Dock all windows to create shared splitters
                 ImGui::DockBuilderDockWindow("Scene Hierarchy", dock_left);
                 ImGui::DockBuilderDockWindow("Console", dock_bottom);  
                 ImGui::DockBuilderDockWindow("Inspector", dock_right_top);
@@ -423,7 +449,6 @@ int main(int, char**)
             {
                 if (ImGui::MenuItem("About AeroSLR"))
                 {
-                    // Defer popup open to root to avoid ID stack mismatch
                     open_about_popup = true;
                 }
                 ImGui::EndMenu();
@@ -484,14 +509,13 @@ int main(int, char**)
             {
                 ImGui::Text("Select an object to add:");
                 ImGui::Separator();
-                if (ImGui::MenuItem("Triangle"))
+                if (ImGui::MenuItem("Cube"))
                 {
-            // Create new triangle id and default name
             char default_name[32];
-            snprintf(default_name, sizeof(default_name), "Triangle %d", next_triangle_id);
-            triangle_ids.push_back(next_triangle_id);
-            triangle_names.push_back(std::string(default_name));
-            next_triangle_id++;
+            snprintf(default_name, sizeof(default_name), "Cube %d", next_cube_id);
+            cube_ids.push_back(next_cube_id);
+            cube_names.push_back(std::string(default_name));
+            next_cube_id++;
             ImGui::CloseCurrentPopup();
                 }
                 ImGui::EndPopup();
@@ -499,20 +523,17 @@ int main(int, char**)
 
             ImGui::Separator();
 
-            // Track which triangle to delete (if any)
-            int triangle_to_delete = -1;
+            int cube_to_delete = -1;
 
-            for (int i = 0; i < triangle_ids.size(); i++)
+            for (int i = 0; i < cube_ids.size(); i++)
             {
-                ImGui::PushID(triangle_ids[i]);
+                ImGui::PushID(cube_ids[i]);
 
-                // Use the persistent name for display so edits stick
-                const char* node_label = triangle_names[i].c_str();
+                const char* node_label = cube_names[i].c_str();
 
-                // Use Selectable instead of TreeNode for right-click functionality
+                // For selectging objects in the hierarchy
                 if (ImGui::Selectable(node_label, false))
                 {
-                    // left-click selection handling can go here
                 }
 
                 if (ImGui::BeginPopupContextItem())
@@ -523,21 +544,21 @@ int main(int, char**)
                     if (ImGui::MenuItem("Rename"))
                     {
                         rename_target = i;
-                        strncpy_s(rename_buf, sizeof(rename_buf), triangle_names[i].c_str(), _TRUNCATE);
+                        strncpy_s(rename_buf, sizeof(rename_buf), cube_names[i].c_str(), _TRUNCATE);
                         // Defer popup open to root to avoid ID stack mismatch
                         open_rename_popup = true;
                     }
                     if (ImGui::MenuItem("Duplicate"))
                     {
                         char default_name[32];
-                        snprintf(default_name, sizeof(default_name), "Triangle %d", next_triangle_id);
-                        triangle_ids.push_back(next_triangle_id);
-                        triangle_names.push_back(std::string(default_name));
-                        next_triangle_id++;
+                        snprintf(default_name, sizeof(default_name), "Cube %d", next_cube_id);
+                        cube_ids.push_back(next_cube_id);
+                        cube_names.push_back(std::string(default_name));
+                        next_cube_id++;
                     }
                     if (ImGui::MenuItem("Delete"))
                     {
-                        triangle_to_delete = i;
+                        cube_to_delete = i;
                     }
                     ImGui::EndPopup();
                 }
@@ -545,21 +566,21 @@ int main(int, char**)
                 ImGui::PopID();
             }
             
-            // Delete the triangle outside the loop to avoid iterator issues
-            if (triangle_to_delete >= 0)
+            // Delete the cube outside the loop to avoid iterator issues
+            if (cube_to_delete >= 0)
             {
-                triangle_ids.erase(triangle_ids.begin() + triangle_to_delete);
+                cube_ids.erase(cube_ids.begin() + cube_to_delete);
                 // Keep names vector in sync
-                if (triangle_to_delete < (int)triangle_names.size())
-                    triangle_names.erase(triangle_names.begin() + triangle_to_delete);
+                if (cube_to_delete < (int)cube_names.size())
+                    cube_names.erase(cube_names.begin() + cube_to_delete);
                 // If the rename target was after the deleted index, adjust it
-                if (rename_target == triangle_to_delete)
+                if (rename_target == cube_to_delete)
                 {
                     rename_target = -1;
                     // Close any open rename popup
                     ImGui::CloseCurrentPopup();
                 }
-                else if (rename_target > triangle_to_delete)
+                else if (rename_target > cube_to_delete)
                     rename_target--;
             }
 
@@ -643,7 +664,7 @@ int main(int, char**)
             // Debug info to see what's happening
             ImGui::Text("Canvas pos: %.1f, %.1f", canvas_pos.x, canvas_pos.y);
             ImGui::Text("Canvas size: %.1f x %.1f", canvas_size.x, canvas_size.y);
-            ImGui::Text("Triangle count: %d", (int)triangle_ids.size());
+            ImGui::Text("cube count: %d", (int)cube_ids.size());
             
             // Adjust canvas size to account for debug text
             canvas_size = ImGui::GetContentRegionAvail();
@@ -678,7 +699,7 @@ int main(int, char**)
     // MODAL/POPUP WINDOWS - Rendered right before ImGui::Render() to appear on top
     // Open any deferred popups at the root ID stack
     if (open_about_popup) { ImGui::OpenPopup("About AeroSLR"); open_about_popup = false; }
-    if (open_rename_popup) { ImGui::OpenPopup("Rename Triangle"); open_rename_popup = false; }
+    if (open_rename_popup) { ImGui::OpenPopup("Rename cube"); open_rename_popup = false; }
         
         // ABOUT WINDOW
         if (ImGui::BeginPopupModal("About AeroSLR", NULL, ImGuiWindowFlags_AlwaysAutoResize))
@@ -700,9 +721,9 @@ int main(int, char**)
         }
 
         // RENAME WINDOW
-        if (ImGui::BeginPopupModal("Rename Triangle", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+        if (ImGui::BeginPopupModal("Rename cube", NULL, ImGuiWindowFlags_AlwaysAutoResize))
         {
-            ImGui::Text("Rename Triangle:");
+            ImGui::Text("Rename cube:");
             ImGui::Separator();
             
             // Auto-focus the input field when the window appears
@@ -714,9 +735,9 @@ int main(int, char**)
             
             if (ImGui::Button("OK") || ImGui::IsKeyPressed(ImGuiKey_Enter))
             {
-                if (rename_target >= 0 && rename_target < (int)triangle_names.size())
+                if (rename_target >= 0 && rename_target < (int)cube_names.size())
                 {
-                    triangle_names[rename_target] = std::string(rename_buf);
+                    cube_names[rename_target] = std::string(rename_buf);
                 }
                 rename_target = -1;
                 ImGui::CloseCurrentPopup();
@@ -743,7 +764,7 @@ int main(int, char**)
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        // RENDER OPENGL TRIANGLES AFTER IMGUI (in a specific scissor area)
+        // RENDER OPENGL cubeS AFTER IMGUI 
         if (show_viewport_window && viewport_canvas_size.x > 0 && viewport_canvas_size.y > 0)
         {
             ImVec2 canvas_pos = viewport_canvas_pos;
@@ -759,40 +780,41 @@ int main(int, char**)
             int opengl_viewport_w = (int)(canvas_size.x * scale_x);
             int opengl_viewport_h = (int)(canvas_size.y * scale_y);
             
-            // Ensure viewport dimensions are positive and reasonable
             if (opengl_viewport_w > 0 && opengl_viewport_h > 0 && 
                 opengl_viewport_x >= 0 && opengl_viewport_y >= 0 &&
                 opengl_viewport_x < display_w && opengl_viewport_y < display_h)
             {
-                // Set viewport and scissor test to limit rendering to our canvas area
                 glViewport(opengl_viewport_x, opengl_viewport_y, opengl_viewport_w, opengl_viewport_h);
                 glEnable(GL_SCISSOR_TEST);
                 glScissor(opengl_viewport_x, opengl_viewport_y, opengl_viewport_w, opengl_viewport_h);
                 
-                // Clear only our canvas area with a dark background
                 glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
                 
                 glDisable(GL_DEPTH_TEST);
                 glDisable(GL_CULL_FACE);
                 
+                // Rotation & Movement
+
                 glm::mat4 model = glm::mat4(1.0f);
-                model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.3f));
+                // model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.3f));
+                model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
                 glm::mat4 view = glm::mat4(1.0f);
-                view = glm::translate(view, glm::vec3(0.0f, 0.0f, -2.0f));
+                view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+                // Projection Matrix
 
                 glm::mat4 projection;
                 float aspect = (float)opengl_viewport_w / (float)opengl_viewport_h;
                 projection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 100.0f);
 
-                // Upload matrices to the shader (ensure program is bound)
                 glUseProgram(shaderProgram);
                 glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
                 glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
                 glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-                for (int i = 0; i < triangle_ids.size(); i++)
+                for (int i = 0; i < cube_ids.size(); i++)
                 {
                     glBindVertexArray(VAO);
                     if (viewport_wireframe)
@@ -803,7 +825,7 @@ int main(int, char**)
                     {
                         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                     }
-                    glDrawArrays(GL_TRIANGLES, 0, 6);
+                    glDrawArrays(GL_TRIANGLES, 0, 36);
                     glBindVertexArray(0);
                 }
                 
@@ -821,7 +843,7 @@ int main(int, char**)
 
     // Cleanup
     glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &vertexBufferID);
+    glDeleteBuffers(1, &VBO);
     glDeleteProgram(shaderProgram);
     
     ImGui_ImplOpenGL3_Shutdown();
